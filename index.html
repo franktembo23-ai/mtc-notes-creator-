@@ -298,6 +298,7 @@ body.online-exam-mode #onlineExamRoot{display:block;}
       <label class="f">Realtime Database URL (only fill in if sync gets stuck)</label>
       <input type="text" id="s_databaseURL" placeholder="https://mtc-notes-default-rtdb.europe-west1.firebasedatabase.app">
       <div class="hint">Find this at the top of Firebase Console &rarr; Build &rarr; Realtime Database. Leave blank to use the default.</div>
+      <div class="hint" style="margin-top:8px;">Exam Results (from Take Exam and Online Exam) always sync automatically whenever there's internet - this toggle only controls the Notes Bank and Exam Bank.</div>
       <div class="btnRow"><button class="save" onclick="saveDatabaseUrl()">Save Database URL</button></div>
     </div>
 
@@ -533,6 +534,7 @@ function initApp(){
   renderResultsList();
   addManualSubtopic();
   if(settings.syncEnabled){ initFirebase(); }
+  initResultsSync();
 }
 function loadSettings(){
   var raw = localStorage.getItem(LS_SETTINGS_KEY);
@@ -863,7 +865,7 @@ function startDatabaseSync(){
   fbDb = firebase.database();
   fbReady = true;
   setSyncStatus(true,'Syncing...');
-  var stores = ['notes','exams','results'];
+  var stores = ['notes','exams'];
   var pending = stores.length;
   for(var i=0;i<stores.length;i++){
     (function(storeName){
@@ -1416,7 +1418,8 @@ function publishExamFlag(id, flagName){
     dbPut('exams', x).then(function(saved){
       pushToFirebase('exams', saved);
       renderExamBank();
-      alert('Marked ready. This will appear in the matching section once Part 3 is built.');
+      renderExamBank2();
+      alert('Exam marked ready.');
     });
   });
 }
@@ -2273,10 +2276,9 @@ function renderExamBank2Item(x){
     '<button onclick="printExamPdf(\''+x.id+'\')">Print PDF</button>';
   if(x.readyForTakeExam){ actions += '<button class="primary" onclick="startTakeExamFlow(\''+x.id+'\',\'take\')">Take Exam</button>'; }
   if(x.readyForOnline){ actions += '<button class="primary" onclick="startTakeExamFlow(\''+x.id+'\',\'online\')">Take Online</button>'; }
-  actions += '<button class="gold-ish" onclick="downloadStandaloneExam(\''+x.id+'\')">Download Standalone</button>';
-  if(!x.readyForTakeExam && !x.readyForOnline){
-    actions += '<span class="hint" style="flex-basis:100%;">Not published yet - use the Publish buttons in the Exam Bank on the AI Notes Creator tab.</span>';
-  }
+  actions += '<button onclick="downloadStandaloneExam(\''+x.id+'\')">Download Standalone</button>';
+  if(!x.readyForTakeExam){ actions += '<button onclick="publishExamFlag(\''+x.id+'\',\'readyForTakeExam\')">Publish: Take Exam</button>'; }
+  actions += '<button class="gold-ish" onclick="publishOnlineExam(\''+x.id+'\')">Publish Online Exam</button>';
   return '<div class="bankItem"><div class="biTop"><div><div class="biTitle">'+escapeHtml(x.title||'Untitled')+'</div>'+
     '<div class="biMeta">'+meta+'</div>'+(flags.length?'<div style="margin-top:6px;">'+flags.join(' ')+'</div>':'')+'</div></div>'+
     '<div class="biBtns">'+actions+'</div>'+
@@ -2509,11 +2511,7 @@ function submitTakeExam(){
     takenAt: Date.now(), createdAt: Date.now(), updatedAt: Date.now()
   };
   dbPut('results', resultObj).then(function(saved){
-    if(document.body.classList.contains('online-exam-mode') && fbDb){
-      try{ fbDb.ref('mtcnotes/results/'+saved.id).set(saved); }catch(e){}
-    } else {
-      pushToFirebase('results', saved);
-    }
+    pushResultAlways(saved);
     renderResultsList();
     renderExamSlip(saved);
   });
@@ -2613,14 +2611,14 @@ function renderResultsList(){
 function deleteResult(id){
   if(!confirm('Delete this result?')) return;
   dbDelete('results', id).then(function(){
-    deleteFromFirebase('results', id);
+    deleteResultAlways(id);
     renderResultsList();
   });
 }
 function clearAllResults(){
   if(!confirm('Clear ALL exam results on every synced device? This cannot be undone.')) return;
   dbClear('results').then(function(){
-    clearFirebaseStore('results');
+    clearResultsAlways();
     renderResultsList();
   });
 }
@@ -2651,12 +2649,12 @@ function publishOnlineExam(id){
     var x = null;
     for(var i=0;i<items.length;i++){ if(items[i].id===id){ x=items[i]; break; } }
     if(!x) return;
-    if(!settings.syncEnabled){
-      alert('Turn on Firebase Cloud Sync in the Cloud Sync card first - Online Exams need it to publish and to collect results.');
-      return;
-    }
     resolveExamDiagramsToDataUrls(x).then(function(examWithData){
       ensureFirebaseReady().then(function(){
+        if(!fbDb){
+          alert('Could not connect to Firebase - check your internet connection and try again.');
+          return;
+        }
         try{
           fbDb.ref('mtcnotes/onlineExams/'+x.id).set(examWithData).then(function(){
             x.readyForOnline = true; x.updatedAt = Date.now();
@@ -2679,16 +2677,53 @@ function publishOnlineExam(id){
 function ensureFirebaseReady(){
   return new Promise(function(resolve){
     if(fbReady && fbDb){ resolve(); return; }
-    if(!fbApp){
-      var cfg = {};
-      for(var k in firebaseConfig){ cfg[k]=firebaseConfig[k]; }
-      if(settings.databaseURL){ cfg.databaseURL = settings.databaseURL; }
-      fbApp = firebase.initializeApp(cfg);
+    if(typeof firebase === 'undefined'){ resolve(); return; }
+    try{
+      if(!fbApp){
+        var cfg = {};
+        for(var k in firebaseConfig){ cfg[k]=firebaseConfig[k]; }
+        if(settings.databaseURL){ cfg.databaseURL = settings.databaseURL; }
+        fbApp = firebase.initializeApp(cfg);
+      }
+      firebase.auth().onAuthStateChanged(function(user){
+        if(user){ fbDb = firebase.database(); fbReady = true; resolve(); }
+      });
+      firebase.auth().signInAnonymously().catch(function(){ resolve(); });
+    }catch(e){
+      resolve();
     }
-    firebase.auth().onAuthStateChanged(function(user){
-      if(user){ fbDb = firebase.database(); fbReady = true; resolve(); }
-    });
-    firebase.auth().signInAnonymously().catch(function(){ resolve(); });
+  });
+}
+
+/* ---------------- RESULTS SYNC (always on, independent of the
+   Notes/Exam Bank Cloud Sync toggle - exam results should never be
+   silently lost just because that switch happened to be off) ---------------- */
+var resultsListenerAttached = false;
+function initResultsSync(){
+  if(resultsListenerAttached) return;
+  ensureFirebaseReady().then(function(){
+    if(!fbDb || resultsListenerAttached) return;
+    resultsListenerAttached = true;
+    var ref = fbDb.ref(FB_ROOT+'/results');
+    ref.on('value', function(snap){
+      var remote = snap.val() || {};
+      mergeRemoteInto('results', remote).then(function(){ renderResultsList(); });
+    }, function(){ /* silent - offline or rules not ready yet */ });
+  });
+}
+function pushResultAlways(resultObj){
+  return ensureFirebaseReady().then(function(){
+    if(fbDb){ try{ fbDb.ref(FB_ROOT+'/results/'+resultObj.id).set(resultObj); }catch(e){} }
+  });
+}
+function deleteResultAlways(id){
+  return ensureFirebaseReady().then(function(){
+    if(fbDb){ try{ fbDb.ref(FB_ROOT+'/results/'+id).remove(); }catch(e){} }
+  });
+}
+function clearResultsAlways(){
+  return ensureFirebaseReady().then(function(){
+    if(fbDb){ try{ fbDb.ref(FB_ROOT+'/results').remove(); }catch(e){} }
   });
 }
 function checkOnlineExamMode(){
@@ -2814,10 +2849,12 @@ function buildStandaloneExamHtml(x){
 'function renderQuestions(){ var qs=EXAM.questions||[]; var h="<div class=\\"card timerCard\\">Time Remaining: <span id=\\"timerDisplay\\">--:--</span></div>"; for(var i=0;i<qs.length;i++){ var q=qs[i]; h+="<div class=\\"examQBlock\\"><b>Q"+(i+1)+".</b> "+escapeHtml(q.question||""); var mi=q.mainImgUrls||[]; for(var m=0;m<mi.length;m++){ h+="<img class=\\"qimg\\" src=\\""+mi[m]+"\\">"; } if(q.type==="mcq"){ var letters=["A","B","C","D"]; for(var o=0;o<4;o++){ h+="<div class=\\"mcqOptRow\\"><label><input type=\\"radio\\" name=\\"mcq_"+i+"\\" value=\\""+o+"\\"> "+letters[o]+". "+escapeHtml((q.options&&q.options[o])||"")+"</label></div>"; var oi=(q.optImgUrls&&q.optImgUrls[o])||[]; for(var y=0;y<oi.length;y++){ h+="<img class=\\"qimg\\" src=\\""+oi[y]+"\\">"; } } } else if(q.subparts && q.subparts.length){ for(var s=0;s<q.subparts.length;s++){ var sp=q.subparts[s]; h+="<div class=\\"subpartBlock\\"><b>("+sp.label+") ["+(sp.marks||0)+" marks]</b><div>"+escapeHtml(sp.question||"")+"</div>"; var si=sp.imgUrls||[]; for(var z=0;z<si.length;z++){ h+="<img class=\\"qimg\\" src=\\""+si[z]+"\\">"; } h+="<textarea id=\\"short_"+i+"_"+sp.label+"\\" rows=\\"2\\" placeholder=\\"Your answer\\"></textarea></div>"; } } else { h+="<div class=\\"hint\\">["+(q.marks||0)+" marks]</div><textarea id=\\"short_"+i+"_main\\" rows=\\"3\\" placeholder=\\"Your answer\\"></textarea>"; } h+="</div>"; } h+="<button onclick=\\"submitExam()\\">Submit Exam</button>"; document.getElementById("app").innerHTML=h; startTimer(); }'+
 'function startTimer(){ remainingSeconds=(EXAM.durationMinutes||60)*60; updateTimer(); timerHandle=setInterval(function(){ remainingSeconds--; updateTimer(); if(remainingSeconds<=0){ clearInterval(timerHandle); alert("Time is up! Submitting now."); submitExam(); } },1000); }'+
 'function updateTimer(){ var el=document.getElementById("timerDisplay"); if(!el) return; var m=Math.floor(remainingSeconds/60), s=remainingSeconds%60; el.textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s; if(remainingSeconds<=60){ el.style.color="#c0392b"; } }'+
-'function submitExam(){ if(timerHandle){ clearInterval(timerHandle); timerHandle=null; } var qs=EXAM.questions||[]; var answers={}; for(var i=0;i<qs.length;i++){ var q=qs[i]; if(q.type==="mcq"){ var checked=document.querySelector("input[name=mcq_"+i+"]:checked"); answers[i]=checked?parseInt(checked.value,10):null; } else if(q.subparts && q.subparts.length){ var sub={}; for(var s=0;s<q.subparts.length;s++){ var sp=q.subparts[s]; var e=document.getElementById("short_"+i+"_"+sp.label); sub[sp.label]=e?e.value:""; } answers[i]={subparts:sub}; } else { var me=document.getElementById("short_"+i+"_main"); answers[i]={main: me?me.value:""}; } } var result=autoMarkExamAttempt(EXAM, answers); var resObj={id:"res_"+Date.now(),examId:EXAM.id,examTitle:EXAM.title,subject:EXAM.subject,grade:EXAM.grade,topic:EXAM.topic,studentName:studentName,examNumber:studentNumber,earnedMarks:result.earnedMarks,totalMarks:result.totalMarks,percent:result.percent,eczGrade:result.grade,mode:"standalone",takenAt:Date.now(),updatedAt:Date.now()}; trySyncResult(resObj); renderSlip(resObj); }'+
+'function submitExam(){ if(timerHandle){ clearInterval(timerHandle); timerHandle=null; } var qs=EXAM.questions||[]; var answers={}; for(var i=0;i<qs.length;i++){ var q=qs[i]; if(q.type==="mcq"){ var checked=document.querySelector("input[name=mcq_"+i+"]:checked"); answers[i]=checked?parseInt(checked.value,10):null; } else if(q.subparts && q.subparts.length){ var sub={}; for(var s=0;s<q.subparts.length;s++){ var sp=q.subparts[s]; var e=document.getElementById("short_"+i+"_"+sp.label); sub[sp.label]=e?e.value:""; } answers[i]={subparts:sub}; } else { var me=document.getElementById("short_"+i+"_main"); answers[i]={main: me?me.value:""}; } } var result=autoMarkExamAttempt(EXAM, answers); var resObj={id:"res_"+Date.now(),examId:EXAM.id,examTitle:EXAM.title,subject:EXAM.subject,grade:EXAM.grade,topic:EXAM.topic,studentName:studentName,examNumber:studentNumber,earnedMarks:result.earnedMarks,totalMarks:result.totalMarks,percent:result.percent,eczGrade:result.grade,mode:"standalone",takenAt:Date.now(),updatedAt:Date.now()}; window._lastAnswers=answers; trySyncResult(resObj); renderSlip(resObj); }'+
 'function trySyncResult(r){ try{ var app=firebase.initializeApp(firebaseConfig); firebase.auth().signInAnonymously().then(function(){ fbDb=firebase.database(); fbDb.ref("mtcnotes/results/"+r.id).set(r); }).catch(function(){}); }catch(e){} }'+
-'function renderSlip(r){ var h="<div class=\\"card\\"><h2>Exam Slip</h2><div class=\\"hint\\">"+escapeHtml(r.studentName)+" &middot; Exam No: "+escapeHtml(r.examNumber)+"</div><div class=\\"slipScore\\"><div class=\\"m\\">"+r.earnedMarks+"/"+r.totalMarks+"</div><div class=\\"p\\">"+r.percent+"%</div><div class=\\"g\\">"+escapeHtml(r.eczGrade)+"</div></div><button onclick=\\"sendWhatsApp()\\">Send via WhatsApp</button></div>"; document.getElementById("app").innerHTML=h; window._lastResult=r; }'+
+'function renderSlip(r){ var h="<div class=\\"card\\"><h2>Exam Slip</h2><div class=\\"hint\\">"+escapeHtml(r.studentName)+" &middot; Exam No: "+escapeHtml(r.examNumber)+"</div><div class=\\"slipScore\\"><div class=\\"m\\">"+r.earnedMarks+"/"+r.totalMarks+"</div><div class=\\"p\\">"+r.percent+"%</div><div class=\\"g\\">"+escapeHtml(r.eczGrade)+"</div></div><button onclick=\\"toggleReview()\\">Review Answers</button><button onclick=\\"sendWhatsApp()\\">Send via WhatsApp</button><button onclick=\\"retakeExam()\\">Retake Exam</button><div id=\\"reviewArea\\" style=\\"display:none;\\"></div></div>"; document.getElementById("app").innerHTML=h; window._lastResult=r; }'+
 'function sendWhatsApp(){ var r=window._lastResult; var text="MTC Exam Result\\n"+r.examTitle+"\\nStudent: "+r.studentName+" (Exam No: "+r.examNumber+")\\nScore: "+r.earnedMarks+"/"+r.totalMarks+" ("+r.percent+"%)\\nGrade: "+r.eczGrade; window.open("https://wa.me/260972619148?text="+encodeURIComponent(text), "_blank"); }'+
+'function toggleReview(){ var el=document.getElementById("reviewArea"); if(el.style.display!=="none"){ el.style.display="none"; el.innerHTML=""; return; } var qs=EXAM.questions||[]; var answers=window._lastAnswers||{}; var h=""; for(var i=0;i<qs.length;i++){ var q=qs[i]; h+="<div class=\\"examQBlock\\"><b>Q"+(i+1)+".</b> "+escapeHtml(q.question||"")+"<br>"; if(q.type==="mcq"){ var letters=["A","B","C","D"]; var given=answers[i]; var correct=(given!=null&&parseInt(given,10)===q.correctIndex); h+="Your answer: "+(given!=null?letters[given]:"No answer")+" &middot; Correct: "+letters[q.correctIndex]+" &middot; "+(correct?"Correct":"Incorrect"); } else if(q.subparts && q.subparts.length){ for(var s=0;s<q.subparts.length;s++){ var sp=q.subparts[s]; var subAns=(answers[i]&&answers[i].subparts)?answers[i].subparts[sp.label]:""; var res=autoMarkShortAnswer(subAns, sp.answerKey, sp.marks||0); h+="("+sp.label+") "+res.marksAwarded+"/"+res.maxMarks+" marks - matched: "+(res.matched.join(", ")||"none")+"<br>"; } } else { var mainAns=(answers[i]&&answers[i].main)?answers[i].main:""; var res2=autoMarkShortAnswer(mainAns, q.answerKey, q.marks||0); h+=res2.marksAwarded+"/"+res2.maxMarks+" marks - matched: "+(res2.matched.join(", ")||"none"); } h+="</div>"; } el.innerHTML=h; el.style.display="block"; }'+
+'function retakeExam(){ window._lastAnswers=null; window._lastResult=null; renderQuestions(); }'+
 'renderLogin();'+
 '<\/script></body></html>';
 }
