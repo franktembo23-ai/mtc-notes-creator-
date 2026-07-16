@@ -818,7 +818,7 @@ function dbGetAll(storeName){return openDB().then(function(db){return new Promis
 function clearSyncTimeout(){if(syncTimeoutHandle){clearTimeout(syncTimeoutHandle); syncTimeoutHandle=null;}}
 function initFirebase(){
   try{
-    if(!fbApp){var cfg={}; for(var k in firebaseConfig){cfg[k]=firebaseConfig[k];} if(settings.databaseURL){cfg.databaseURL=settings.databaseURL;} fbApp=firebase.initializeApp(cfg);}
+    if(!fbApp){var cfg={}; for(var k in firebaseConfig){cfg[k]=firebaseConfig[k];} var effectiveURL=getEffectiveDatabaseURL(); if(effectiveURL){cfg.databaseURL=effectiveURL;} console.log('Using Database URL:', effectiveURL); fbApp=firebase.initializeApp(cfg);}
     fbReady=false; setSyncStatus(true,'Signing in...'); clearSyncTimeout();
     syncTimeoutHandle=setTimeout(function(){setSyncStatus(false,'Sync timed out - tap to retry');},15000);
     firebase.auth().onAuthStateChanged(function(user){if(user){startDatabaseSync();}});
@@ -853,8 +853,46 @@ function clearFirebaseStore(storeName){if(!settings.syncEnabled||!fbReady||!fbDb
 function retrySync(){if(!settings.syncEnabled) return; fbReady=false; initFirebase();}
 function setSyncStatus(on,label){var dot=document.getElementById('syncDot'); if(dot){dot.className='connDot '+(on?'on':'off');} var lab=document.getElementById('syncLabelPill'); if(lab){lab.textContent=label;} var lab2=document.getElementById('syncStatusLabel'); if(lab2){lab2.textContent=label;}}
 function toggleSync(){settings.syncEnabled=!settings.syncEnabled; saveSettingsToStorage(); renderSyncUI(); if(settings.syncEnabled){initFirebase();} else {clearSyncTimeout(); setSyncStatus(false,'Local only');}}
-function saveDatabaseUrl(){settings.databaseURL=document.getElementById('s_databaseURL').value.trim(); saveSettingsToStorage(); try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout(); alert('Database URL saved.'); if(settings.syncEnabled){initFirebase();}}
-function renderSyncUI(){var t=document.getElementById('syncToggle'); if(t){t.classList.toggle('on',settings.syncEnabled);} var lastEl=document.getElementById('lastSyncedLabel'); if(lastEl){lastEl.textContent=settings.lastSynced?new Date(settings.lastSynced).toLocaleString():'Never';} var urlEl=document.getElementById('s_databaseURL'); if(urlEl){urlEl.value=settings.databaseURL;}}
+function isValidDatabaseURL(url){
+  if(!url) return false;
+  if(url.indexOf('...')!==-1) return false;
+  if(url.length<30) return false;
+  if(url.indexOf('firebasedatabase.app')===-1 && url.indexOf('firebaseio.com')===-1) return false;
+  if(url==='https://mtc-notes-default-rtdb.' || url==='https://mtc-notes-default-rtdb') return false;
+  return url.indexOf('https://')===0;
+}
+function getEffectiveDatabaseURL(){
+  var custom=settings.databaseURL?settings.databaseURL.trim():'';
+  if(isValidDatabaseURL(custom)) return custom;
+  return firebaseConfig.databaseURL;
+}
+function saveDatabaseUrl(){
+  var inputEl=document.getElementById('s_databaseURL');
+  var raw=inputEl?inputEl.value.trim():'';
+  if(!raw){
+    settings.databaseURL='';
+    saveSettingsToStorage();
+    try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout();
+    alert('Database URL cleared - using default: '+firebaseConfig.databaseURL);
+    if(settings.syncEnabled){initFirebase();}
+    return;
+  }
+  if(!isValidDatabaseURL(raw)){
+    alert('Invalid URL! Must be full like:\nhttps://mtc-notes-default-rtdb.europe-west1.firebasedatabase.app\n\nYou entered: '+raw+'\n\nClearing and using default.');
+    settings.databaseURL='';
+    if(inputEl) inputEl.value='';
+    saveSettingsToStorage();
+    try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout();
+    if(settings.syncEnabled){initFirebase();}
+    return;
+  }
+  settings.databaseURL=raw;
+  saveSettingsToStorage();
+  try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout();
+  alert('Database URL saved: '+raw);
+  if(settings.syncEnabled){initFirebase();}
+}
+function renderSyncUI(){var t=document.getElementById('syncToggle'); if(t){t.classList.toggle('on',settings.syncEnabled);} var lastEl=document.getElementById('lastSyncedLabel'); if(lastEl){lastEl.textContent=settings.lastSynced?new Date(settings.lastSynced).toLocaleString():'Never';} var urlEl=document.getElementById('s_databaseURL'); if(urlEl){urlEl.value=getEffectiveDatabaseURL();}}
 function callGemini(promptText,systemText,jsonMode){
   var apiKey=settings.geminiApiKey; if(!apiKey){return Promise.reject({message:'Add your Gemini API key below and tap Save Key first.'});}
   var modelId=GEMINI_MODELS[settings.geminiModel]||GEMINI_MODELS['2.5 Flash-Lite'];
