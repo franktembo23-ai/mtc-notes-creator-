@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTC Online Exam - Separate Page</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+:root{--navy:#0a2463;--gold:#c5a348;--cream:#fffaf0}
+*{box-sizing:border-box}
+body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--cream);color:#222}
+</style>
+</head>
+<body>
+<div id="onlineSeparatePage" style="min-height:100vh;background:#fffaf0;font-family:Segoe UI,Roboto,Arial,sans-serif">
+  <div style="background:linear-gradient(135deg,#0a2463,#1a3c8c);color:white;padding:16px 20px;display:flex;align-items:center;gap:16px;border-bottom:5px solid #c5a348;position:sticky;top:0;z-index:30">
+    <div id="online_logoArea" style="width:60px;height:60px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid #c5a348;flex-shrink:0;font-weight:900;color:#0a2463;font-size:20px">MTC</div>
+    <div style="flex:1">
+      <div style="font-weight:900;font-size:16px;letter-spacing:0.5px" id="online_headerSchool">MOUNTAIN TUITION CENTRE (MTC)</div>
+      <div style="font-size:12px;color:#f0c674;font-weight:600" id="online_headerSub">Excellence in Education | Online Exam Portal - Separate Page</div>
+      <div style="font-size:11px;color:#dbeafe;margin-top:2px" id="online_headerTopic">Loading exam... | Tutor: Mr Tembo | 0972 619 148</div>
+    </div>
+    <div style="text-align:right">
+      <div style="background:#c5a348;color:#0a2463;padding:4px 10px;border-radius:6px;font-weight:800;font-size:11px" id="online_codeBadge">CODE: ...</div>
+      <div style="font-size:10px;color:#dbeafe;margin-top:4px">ONLINE EXAM - SEPARATE PAGE</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;justify-content:center;background:#112d73;padding:10px;position:sticky;top:85px;z-index:20">
+    <button id="online_btnNotes" onclick="onlineShowTab('notes')" style="background:#c5a348;border:none;padding:10px 22px;font-weight:800;color:#0a2463;border-radius:6px;cursor:pointer">Study Notes</button>
+    <button id="online_btnExam" onclick="onlineShowTab('examGate')" style="background:#fbbf24;border:none;padding:10px 22px;font-weight:800;color:#0a2463;border-radius:6px;cursor:pointer">MCQ Exam (<span id="online_examCountLabel">0</span>)</button>
+  </div>
+
+  <div style="max-width:900px;margin:20px auto;padding:0 16px">
+    <div id="online_studyNotesView" style="background:white;border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);border-top:4px solid #c5a348;min-height:200px">
+      <div style="text-align:center;padding:40px"><div style="font-size:18px;color:#0a2463;font-weight:800">Loading Online Exam...</div><div style="font-size:13px;color:#64748b;margin-top:8px" id="online_loadingText">Connecting to cloud...<br>This is a separate online exam page - Not inside MTC Notes Creator App</div></div>
+    </div>
+
+    <div id="online_loginGate" style="display:none">
+      <div style="max-width:440px;margin:30px auto;text-align:center;background:white;border-radius:16px;padding:28px;box-shadow:0 8px 24px rgba(0,0,0,0.08);border-top:5px solid #c5a348">
+        <h2 style="color:#0a2463;margin:0 0 6px">Student Login Required</h2>
+        <p style="font-size:13px;color:#64748b;margin:0 0 20px">Enter details to start the <span id="online_loginDuration">60</span>-minute online exam</p>
+        <input id="online_studentName" placeholder="Full Name" style="width:100%;padding:14px;margin:8px 0;border:2px solid #0a2463;border-radius:10px;font-size:15px;box-sizing:border-box">
+        <input id="online_examNumber" placeholder="Exam Number" style="width:100%;padding:14px;margin:8px 0;border:2px solid #0a2463;border-radius:10px;font-size:15px;box-sizing:border-box">
+        <button onclick="onlineStartExam()" style="background:#0a2463;color:white;border:none;padding:14px 32px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:16px;width:100%">Start Online Exam</button>
+        <p style="font-size:11px;color:#64748b;margin-top:16px" id="online_loginFooter">School: MTC | Time: 60 mins | Separate Page</p>
+      </div>
+    </div>
+
+    <div id="online_examContent" style="display:none">
+      <div style="position:sticky;top:138px;z-index:15;background:#0a2463;color:white;padding:12px 16px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px;border-bottom:3px solid #c5a348">
+        <div style="font-weight:700">Time Remaining: <span id="online_time" style="font-weight:900;font-size:18px;color:#fbbf24">00:00</span> | <span id="online_displayName"></span></div>
+        <div style="font-size:12px;background:#1e3a5f;padding:4px 10px;border-radius:6px" id="online_examProgress">0/0 answered</div>
+      </div>
+
+      <div id="online_mathKeyboard" style="margin-bottom:16px;background:#f1f5f9;border-radius:12px;padding:14px;border:2px solid #c5a348">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:800;color:#0a2463">Live Advanced Math Keyboard - For Learners</span><button onclick="onlineToggleMathKeyboard()" style="background:#0a2463;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer">Hide/Show</button></div>
+        <div id="online_mk_grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px">
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('x')">x</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('y')">y</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('=')">=</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('+')">+</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('-')">-</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('×')">×</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('÷')">÷</button>
+          <button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath('√')">√</button>
+        </div>
+        <textarea id="online_roughWork" placeholder="Rough work..." style="width:100%;margin-top:12px;padding:10px;border-radius:8px;border:1px solid #cbd5e1;min-height:70px;font-size:13px;box-sizing:border-box"></textarea>
+      </div>
+
+      <div id="online_examHeader" style="text-align:center;margin:16px 0"></div>
+      <form id="online_examForm"></form>
+      <div style="text-align:center;margin:24px"><button style="padding:14px 28px;background:#0a2463;color:white;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer" onclick="onlineSubmitExam(false)">Submit Online Exam</button></div>
+    </div>
+
+    <div id="online_resultSection" style="display:none"></div>
+  </div>
+
+  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:11px;background:#0a1931;margin-top:40px">
+    <div style="font-weight:800;color:#c5a348">MOUNTAIN TUITION CENTRE (MTC)</div>
+    <div>Online Exam Portal | Tutor: Mr Tembo | 0972 619 148 | WhatsApp: +260972619148</div>
+    <div style="margin-top:6px">Separate online exam page - Not inside MTC Notes Creator App</div>
+  </div>
+</div>
+
+<script>
+var firebaseConfig = {apiKey:"AIzaSyD8CVsnzcNnzieKMd9ycLNKpfMvWl_99eI",authDomain:"mtc-notes.firebaseapp.com",databaseURL:"https://mtc-notes-default-rtdb.europe-west1.firebasedatabase.app",projectId:"mtc-notes",storageBucket:"mtc-notes.firebasestorage.app",messagingSenderId:"1043957109557",appId:"1:1043957109557:web:68944ef5a539926b2ab27c",measurementId:"G-3R85K2NSXD"};
+var FB_ROOT='mtcnotes';
+var ONLINE_BASE_LINK='https://franktembo23-ai.github.io/mtc-notes-creator-/';
+var fbApp=null, fbDb=null;
+var _onlineExamCode='', _onlineExamPackage=null, _onlineStudentData=null, _onlineRemainingSeconds=0, _onlineTimerInterval=null;
+
+function initFirebaseOnline(){
+  try{
+    if(!firebase.apps.length){ fbApp=firebase.initializeApp(firebaseConfig); }
+    else { fbApp=firebase.app(); }
+    fbDb=firebase.database();
+    console.log('Firebase ready for online exam');
+  }catch(e){ console.error('Firebase init error', e); }
+}
+
+function getExamCodeFromURL(){
+  var params=new URLSearchParams(window.location.search);
+  return params.get('exam')||'';
+}
+
+window.addEventListener('load', function(){
+  initFirebaseOnline();
+  var code=getExamCodeFromURL();
+  if(code){
+    _onlineExamCode=code.toUpperCase().trim();
+    document.getElementById('online_codeBadge').textContent='CODE: '+_onlineExamCode;
+    document.getElementById('online_loadingText').innerHTML='Code: '+_onlineExamCode+'<br>Connecting to cloud...';
+    fetchOnlineExamFromFirebase(_onlineExamCode);
+  } else {
+    document.getElementById('online_studyNotesView').innerHTML='<div style="text-align:center;padding:40px;color:#dc2626"><h3>No Exam Code</h3><p>Use link format: https://franktembo23-ai.github.io/mtc-notes-creator-/online-exam.html?exam=CODE</p><p>Or https://franktembo23-ai.github.io/mtc-notes-creator-/?exam=CODE</p></div>';
+  }
+});
+
+function onlineShowTab(tab){
+  var notes=document.getElementById('online_studyNotesView');
+  var login=document.getElementById('online_loginGate');
+  var exam=document.getElementById('online_examContent');
+  var result=document.getElementById('online_resultSection');
+  if(tab==='notes'){ notes.style.display='block'; login.style.display='none'; exam.style.display='none'; result.style.display='none'; }
+  else if(tab==='examGate'){ notes.style.display='none'; login.style.display='block'; exam.style.display='none'; result.style.display='none'; }
+  else if(tab==='exam'){ notes.style.display='none'; login.style.display='none'; exam.style.display='block'; result.style.display='none'; }
+  else if(tab==='result'){ notes.style.display='none'; login.style.display='none'; exam.style.display='none'; result.style.display='block'; }
+}
+
+function onlineRenderExam(rec){
+  var pkg=rec.packageData||rec;
+  var meta=pkg.meta||rec.meta||{};
+  var count=(pkg.mcqQuestions||[]).length;
+  _onlineExamPackage=pkg;
+  _onlineExamPackage.onlineCode=rec.code;
+  document.getElementById('online_headerSchool').textContent=(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)').toUpperCase();
+  document.getElementById('online_headerSub').textContent='Excellence in Education | '+(meta.subject||rec.subject||'')+' Grade '+(meta.grade||rec.grade||'')+' | Separate Page';
+  document.getElementById('online_headerTopic').textContent='Topic: '+(meta.topic||rec.topic||'')+' | Code: '+rec.code+' | Separate Online Page - Not inside App';
+  document.getElementById('online_examCountLabel').textContent=count;
+  document.getElementById('online_loginDuration').textContent=meta.duration||rec.duration||60;
+  var notesView=document.getElementById('online_studyNotesView');
+  var notesHtml='';
+  if(pkg.richHTML && pkg.richHTML.trim().length>20) notesHtml=pkg.richHTML;
+  else if(pkg.notesSections){ var h=''; for(var i=0;i<pkg.notesSections.length;i++){ h+='<h3 style="color:#0a2463">'+(pkg.notesSections[i].heading||'')+'</h3><p>'+(pkg.notesSections[i].content||'')+'</p>'; } notesHtml=h; }
+  notesView.innerHTML='<h2 style="color:#0a2463">EXAM NOTES: '+((meta.topic||rec.topic||'').toUpperCase())+' ['+rec.code+']</h2>'+notesHtml;
+  onlineShowTab('notes');
+}
+
+function onlineToggleMathKeyboard(){
+  var g=document.getElementById('online_mk_grid');
+  if(g) g.style.display=(g.style.display==='none')?'grid':'none';
+}
+function onlineInsertMath(s){
+  var r=document.getElementById('online_roughWork');
+  if(r){ var a=r.selectionStart||0; var b=r.selectionEnd||0; var t=r.value||''; r.value=t.substring(0,a)+s+t.substring(b); r.focus(); r.selectionStart=r.selectionEnd=a+s.length; }
+}
+function onlineStartExam(){
+  var n=document.getElementById('online_studentName').value.trim();
+  var e=document.getElementById('online_examNumber').value.trim();
+  if(!n){ alert('Enter Full Name'); return; }
+  if(!e){ alert('Enter Exam Number'); return; }
+  _onlineStudentData={name:n, examNumber:e, startedAt:Date.now()};
+  document.getElementById('online_displayName').textContent=n+' ('+e+')';
+  onlineShowTab('exam');
+  onlineBuildQuestions();
+  onlineStartTimer();
+}
+function onlineBuildQuestions(){
+  var pkg=_onlineExamPackage; if(!pkg) return;
+  var form=document.getElementById('online_examForm'); form.innerHTML='';
+  for(var i=0;i<pkg.mcqQuestions.length;i++){
+    var q=pkg.mcqQuestions[i];
+    var d=document.createElement('div'); d.style.cssText='margin:18px 0;padding:14px;border-left:4px solid #0a2463;background:#f9fbff;border-radius:6px';
+    var opts='';
+    for(var o=0;o<q.options.length;o++){ opts+='<label style="display:block;margin:8px 0;padding:12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;background:white"><input type="radio" name="online_q'+i+'" value="'+o+'" onchange="onlineUpdateProgress()"> <strong>'+String.fromCharCode(65+o)+'.</strong> '+q.options[o]+'</label>'; }
+    d.innerHTML='<h4>Q'+(i+1)+'. '+(q.q||'')+'</h4><div>'+opts+'</div>';
+    form.appendChild(d);
+  }
+  onlineUpdateProgress();
+}
+function onlineUpdateProgress(){
+  var total=_onlineExamPackage.mcqQuestions.length; var ans=0;
+  for(var i=0;i<total;i++){ if(document.querySelector('input[name="online_q'+i+'"]:checked')) ans++; }
+  document.getElementById('online_examProgress').textContent=ans+'/'+total+' answered';
+}
+function onlineStartTimer(){
+  var dur=parseInt(_onlineExamPackage.meta.duration)||60;
+  _onlineRemainingSeconds=dur*60;
+  function rt(){
+    var m=String(Math.floor(_onlineRemainingSeconds/60)).padStart(2,'0');
+    var s=String(_onlineRemainingSeconds%60).padStart(2,'0');
+    document.getElementById('online_time').textContent=m+':'+s;
+    if(_onlineRemainingSeconds<=0){ clearInterval(_onlineTimerInterval); onlineSubmitExam(true); }
+  }
+  rt();
+  _onlineTimerInterval=setInterval(function(){ _onlineRemainingSeconds--; rt(); },1000);
+}
+function onlineSubmitExam(isAuto){
+  if(!isAuto && !confirm('Submit now?')) return;
+  clearInterval(_onlineTimerInterval);
+  var pkg=_onlineExamPackage; var score=0; var res=[];
+  for(var i=0;i<pkg.mcqQuestions.length;i++){
+    var sel=document.querySelector('input[name="online_q'+i+'"]:checked');
+    var ch=sel?parseInt(sel.value):-1;
+    var cor=pkg.mcqQuestions[i].answer;
+    var ok=ch===cor;
+    if(ok) score++;
+    res.push({q:pkg.mcqQuestions[i].q, options:pkg.mcqQuestions[i].options, chosen:ch, answer:cor, correct:ok});
+  }
+  var total=pkg.mcqQuestions.length;
+  var percent=Math.round(score/total*100);
+  var grade=percent>=75?'Distinction':percent>=65?'Merit':percent>=50?'Credit':percent>=40?'Pass':'Fail';
+  var rec={
+    id:'res_'+Date.now(),
+    studentName:_onlineStudentData.name,
+    examNumber:_onlineStudentData.examNumber,
+    onlineCode:_onlineExamCode,
+    title:pkg.meta.title||'Online Exam',
+    subject:pkg.meta.subject||'',
+    grade:pkg.meta.grade||'',
+    topic:pkg.meta.topic||'',
+    score:score, total:total, percent:percent, gradeLabel:grade,
+    answers:res, isOnline:true, createdAt:Date.now()
+  };
+  fbDb.ref(FB_ROOT+'/results/'+rec.id).set(rec);
+  var html='<div style="text-align:center;padding:14px;background:linear-gradient(135deg,#0a2463,#1e40af);color:white;border-radius:12px"><h2 style="margin:0;color:#f0c674">MTC Online Result Slip - Separate Page</h2><div>Code: '+_onlineExamCode+' | Not inside App</div></div>';
+  html+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-top:12px"><p><strong>Name:</strong> '+rec.studentName+'</p><p><strong>Exam No:</strong> '+rec.examNumber+'</p><p><strong>Score:</strong> '+score+'/'+total+' ('+percent+'%) - '+grade+'</p></div>';
+  html+='<div style="text-align:center;margin:16px"><a href="https://wa.me/260972619148?text=MTC%20Online%20Result%20'+encodeURIComponent(rec.studentName)+'%20'+percent+'%25%20'+grade+'" target="_blank" style="background:#25D366;color:white;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:800">Send via WhatsApp to Mr Tembo</a></div>';
+  html+='<h3>Review</h3>';
+  for(var i=0;i<res.length;i++){ var r=res[i]; html+='<div style="border-left:4px solid '+(r.correct?'#16a34a':'#dc2626')+';margin:12px 0;padding:12px;background:#fff"><h4>Q'+(i+1)+'. '+r.q+' '+(r.correct?'✔':'✖')+'</h4><p>Your: '+ (r.chosen>=0?r.options[r.chosen]:'No answer') +'</p><p>Correct: '+r.options[r.answer]+'</p></div>'; }
+  document.getElementById('online_resultSection').innerHTML=html;
+  onlineShowTab('result');
+}
+
+function fetchOnlineExamFromFirebase(code){
+  if(!fbDb){ setTimeout(function(){ fetchOnlineExamFromFirebase(code); }, 1000); return; }
+  fbDb.ref(FB_ROOT+'/onlineExams').orderByChild('code').equalTo(code).once('value').then(function(snap){
+    var val=snap.val();
+    if(!val){
+      fbDb.ref(FB_ROOT+'/onlineExams').once('value').then(function(snap2){
+        var all=snap2.val()||{};
+        var found=null;
+        for(var k in all){ if(all[k] && all[k].code && all[k].code.toUpperCase()===code.toUpperCase()){ found=all[k]; break; } }
+        if(found) onlineRenderExam(found);
+        else document.getElementById('online_studyNotesView').innerHTML='<div style="text-align:center;padding:40px;color:#dc2626"><h3>Exam Not Found: '+code+'</h3><p>Contact Mr Tembo 0972619148</p></div>';
+      });
+    } else {
+      var first=Object.keys(val)[0];
+      onlineRenderExam(val[first]);
+    }
+  });
+}
+</script>
+</body>
+</html>
