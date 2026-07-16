@@ -136,34 +136,6 @@ label.f{display:block;font-size:12px;font-weight:700;color:var(--navy);margin:10
 </style>
 </head>
 <body>
-<div id="globalLoginGate" style="position:fixed;inset:0;z-index:9999;background:#f8fafc;display:flex;align-items:center;justify-content:center;padding:20px">
-  <div style="width:100%;max-width:380px;background:white;border-radius:20px;padding:28px 24px;box-shadow:0 20px 40px rgba(10,36,99,0.15);text-align:center">
-    <div style="width:80px;height:80px;border-radius:50%;background:white;border:3px solid #c5a348;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.08)">
-      <div style="width:60px;height:60px;border-radius:50%;background:#0a2463;display:flex;align-items:center;justify-content:center;color:#c5a348;font-size:28px">🎓</div>
-    </div>
-    <h2 style="margin:0;font-size:18px;font-weight:900;color:#0a1931;letter-spacing:0.5px">MTC NOTES CREATOR</h2>
-    <p style="margin:2px 0 18px;font-size:12px;color:#64748b;letter-spacing:0.3px">Excellence in Education</p>
-    
-    <div style="display:flex;background:#eef2ff;border-radius:12px;padding:4px;gap:4px;margin-bottom:18px">
-      <button id="globalRoleStudentBtn" onclick="switchGlobalLoginRole('student')" style="flex:1;background:white;border:none;padding:10px;border-radius:8px;font-weight:800;font-size:13px;color:#0a1931;box-shadow:0 2px 6px rgba(0,0,0,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span>📚</span> Student</button>
-      <button id="globalRoleTeacherBtn" onclick="switchGlobalLoginRole('teacher')" style="flex:1;background:transparent;border:none;padding:10px;border-radius:8px;font-weight:700;font-size:13px;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><span>📝</span> Teacher</button>
-    </div>
-
-    <div style="text-align:left">
-      <label style="font-size:12px;font-weight:800;color:#0a1931;margin-bottom:4px;display:block">Full Name</label>
-      <input id="globalFullName" placeholder="Enter your full name" style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:12px">
-      
-      <label id="globalSecondLabel" style="font-size:12px;font-weight:800;color:#0a1931;margin-bottom:4px;display:block">Exam Number</label>
-      <input id="globalExamNumber" placeholder="Enter your exam number" type="text" style="width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13px;outline:none;box-sizing:border-box;margin-bottom:16px">
-      
-      <button onclick="handleGlobalLogin()" style="width:100%;background:#2d5bff;color:white;border:none;padding:14px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">➤ Enter</button>
-      
-      <p id="globalLoginHint" style="font-size:11px;color:#64748b;margin-top:14px;line-height:1.4">Students: use your full name and exam number. Teachers: use the staff password.</p>
-      <p id="globalLoginError" style="font-size:11px;color:#dc2626;margin-top:8px;display:none"></p>
-    </div>
-  </div>
-</div>
-
 
 <header class="app">
   <div class="topRow">
@@ -182,6 +154,7 @@ label.f{display:block;font-size:12px;font-weight:700;color:var(--navy);margin:10
   <button class="tab-btn" data-tab="exams">Exams (Switch)</button>
   <button class="tab-btn" data-tab="takeexam">📝 Take Exam</button>
   <button class="tab-btn" data-tab="results">📊 Results Records</button>
+  <button class="tab-btn" data-tab="onlineexams">🌐 My Online Exams</button>
 </nav>
 
 <div class="syncPill" id="syncPill" onclick="retrySync()"><span class="connDot" id="syncDot"></span><span id="syncLabelPill">Local only</span></div>
@@ -411,53 +384,108 @@ Quick Convert - AI Bank to Switch Package</div><div class="fieldRow" style="marg
   <section id="tab-takeexam" class="hidden">
     <div class="card">
       <div class="section-title">Take Exam - Student Switch <span class="badge" id="takeExamCountBadge">0 Exams</span> <span class="badge" style="background:#e0f2fe;color:#0a2463">Auto Sync ON</span> <button class="smallBtn" style="margin-left:auto" onclick="openTab('exams')">Switch Panel</button></div>
-      <div class="hint">Auto synced from Switch Packages Bank. Select an exam to start. Login requires Name + Exam Number. Timer + Slip % + WhatsApp to +260972619148 included.</div>
+      <div class="hint">Auto synced from Switch Packages Bank. Select an exam to start. Study Notes first → Login (Name + Exam Number) → Timer → Slip % + WhatsApp to +260972619148 included.</div>
       <div class="bankFilters" style="margin-top:10px">
         <select id="takeExamFilterSubject" onchange="renderTakeExamList()"><option value="">All Subjects</option></select>
         <select id="takeExamFilterGrade" onchange="renderTakeExamList()"><option value="">All Grades</option></select>
         <input type="text" id="takeExamSearch" placeholder="Search exam title / topic" oninput="renderTakeExamList()" style="flex:1;min-width:140px;padding:8px 10px;border:1px solid #d5ddef;border-radius:9px;font-size:12.5px;background:#fbfcff;">
       </div>
       <div id="takeExamList" style="margin-top:12px"></div>
-      <div class="btnRow"><button class="primary" onclick="renderTakeExamList()">🔄 Refresh / Auto Sync</button><button class="clear" id="takeExamViewResultsBtn" onclick="openTab('results')">View Results Records</button></div>
+      <div class="btnRow"><button class="primary" onclick="renderTakeExamList()">🔄 Refresh / Auto Sync</button><button class="clear" onclick="openTab('results')">View Results Records</button></div>
     </div>
 
     <div class="card hidden" id="takeExamRunnerCard">
-      <!-- Login Gate -->
-      <div id="take_loginGate">
-        <div class="section-title">Student Login Gate <span class="badge" style="background:#fef3c7;color:#92400e">Required</span></div>
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:10px 0">
-          <div style="font-weight:800;color:var(--navy);margin-bottom:6px" id="take_selectedExamTitle">Selected Exam</div>
-          <div class="hint" id="take_selectedExamMeta"></div>
+      <!-- MTC Switch Header -->
+      <div id="take_switchHeader" style="background:linear-gradient(135deg,#0a2463,#1a3c8c);color:white;padding:14px 16px;border-radius:12px;margin:-4px -4px 12px -4px;border-bottom:4px solid #c5a348">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div id="take_logoArea" style="width:52px;height:52px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid #c5a348;flex-shrink:0;font-weight:900;color:#0a2463">MTC</div>
+          <div style="flex:1;min-width:200px">
+            <div style="font-weight:900;font-size:15px;letter-spacing:0.3px" id="take_headerSchool">MOUNTAIN TUITION CENTRE (MTC)</div>
+            <div style="font-size:11px;color:#f0c674;font-weight:600" id="take_headerSub">Excellence in Education | CHEMISTRY Grade 10</div>
+            <div style="font-size:10px;color:#dbeafe;margin-top:2px" id="take_headerTopic">Topic: Introduction to Chemistry | Tutor: Mr Tembo | 0972 619 148</div>
+          </div>
         </div>
-        <label class="f">Full Name *</label>
-        <input class="editField" id="take_studentName" placeholder="Enter full name e.g. John Banda">
-        <label class="f">Exam Number / ID *</label>
-        <input class="editField" id="take_examNumber" placeholder="Enter exam number e.g. MTC2026/001">
-        <div class="btnRow" style="margin-top:14px">
-          <button class="save" onclick="startTakeExam()">▶ Start Exam</button>
-          <button class="clear" onclick="cancelTakeExam()">Cancel / Back to List</button>
-        </div>
-        <div class="hint" style="margin-top:8px">Timer starts after login. Results graded as Distinction/Merit/Credit/Pass/Fail + Review + WhatsApp send.</div>
       </div>
 
-      <!-- Exam Content -->
+      <!-- Switch Nav Tabs -->
+      <div style="display:flex;gap:10px;justify-content:center;background:#112d73;padding:10px;border-radius:8px;margin-bottom:14px;position:sticky;top:0;z-index:15">
+        <button id="take_btnNotes" onclick="takeExamShowTab('notes')" style="background:#c5a348;border:none;padding:10px 18px;font-weight:800;color:#0a2463;border-radius:6px;cursor:pointer;font-size:13px;box-shadow:0 2px 4px rgba(0,0,0,0.2)">Study Notes</button>
+        <button id="take_btnExam" onclick="takeExamShowTab('examGate')" style="background:#fbbf24;border:none;padding:10px 18px;font-weight:800;color:#0a2463;border-radius:6px;cursor:pointer;font-size:13px">MCQ Exam (<span id="take_examCountLabel">0</span>)</button>
+      </div>
+
+      <!-- Study Notes View -->
+      <div id="take_studyNotesView" style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border-top:4px solid #c5a348"></div>
+
+      <!-- Login Gate -->
+      <div id="take_loginGate" class="hidden">
+        <div style="max-width:420px;margin:20px auto;text-align:center;background:white;border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.06);border-top:4px solid #c5a348">
+          <h2 style="color:#0a2463;margin:0 0 6px">Student Login</h2>
+          <p style="font-size:13px;color:#64748b;margin:0 0 18px">Enter details to start the <span id="take_loginDuration">60</span>-minute exam</p>
+          <input id="take_studentName" placeholder="Full Name" style="width:100%;padding:12px;margin:8px 0;border:2px solid #0a2463;border-radius:8px;font-size:14px;box-sizing:border-box">
+          <input id="take_examNumber" placeholder="Exam Number" style="width:100%;padding:12px;margin:8px 0;border:2px solid #0a2463;border-radius:8px;font-size:14px;box-sizing:border-box">
+          <button onclick="startTakeExam()" style="background:#c5a348;color:#0a2463;border:none;padding:12px 28px;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;margin-top:12px">Start Exam</button>
+          <p style="font-size:11px;color:#64748b;margin-top:14px" id="take_loginFooter">School: MOUNTAIN TUITION CENTRE (MTC) | Time Allowed: 60 minutes</p>
+        </div>
+      </div>
+
+      <!-- Exam Content with Math Keyboard -->
       <div id="take_examContent" class="hidden">
-        <div style="position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0a2463,#1e40af);color:white;padding:10px 14px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:-4px -4px 12px -4px">
-          <div>⏱ <span id="take_time" style="font-weight:900;font-size:16px">00:00</span></div>
-          <div style="font-size:11px"><span id="take_displayName"></span> | <span id="take_displayExamNo"></span></div>
+        <div style="position:sticky;top:52px;z-index:14;background:#0a2463;color:white;padding:10px 14px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;border-bottom:3px solid #c5a348">
+          <div style="font-weight:700">Time Remaining: <span id="take_time" style="font-weight:900;font-size:16px;color:#fbbf24">00:00</span> | Student: <span id="take_displayName"></span></div>
           <div style="font-size:11px" id="take_examProgress"></div>
         </div>
+        
+        <!-- Live Full Advance Math Keyboard for Learners -->
+        <div id="take_mathKeyboard" style="margin-bottom:12px;background:#e5e7eb;border-radius:12px;padding:12px;border:1px solid #cbd5e1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-weight:800;color:#0a2463;font-size:12px">🧮 Live Math Keyboard - For Learners (Click to insert / copy)</span>
+            <button class="smallBtn" onclick="toggleTakeMathKeyboard()" style="background:#0a2463;color:white">Hide/Show</button>
+          </div>
+          <div id="take_mk_123" style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px">
+            <button class="mkBtn" onclick="insertTakeMath('x')"><i>x</i></button>
+            <button class="mkBtn" onclick="insertTakeMath('y')"><i>y</i></button>
+            <button class="mkBtn" onclick="insertTakeMath('=')">=</button>
+            <button class="mkBtn" onclick="insertTakeMath('+')">+</button>
+            <button class="mkBtn" onclick="insertTakeMath('−')">−</button>
+            <button class="mkBtn" onclick="insertTakeMath('×')">×</button>
+            <button class="mkBtn" onclick="insertTakeMath('÷')">÷</button>
+            <button class="mkBtn" onclick="insertTakeMath('√')">√</button>
+            <button class="mkBtn" onclick="insertTakeMath('x²')">x²</button>
+            <button class="mkBtn" onclick="insertTakeMath('x³')">x³</button>
+            <button class="mkBtn" onclick="insertTakeMath('≤')">≤</button>
+            <button class="mkBtn" onclick="insertTakeMath('≥')">≥</button>
+            <button class="mkBtn" onclick="insertTakeMath('≠')">≠</button>
+            <button class="mkBtn" onclick="insertTakeMath('∞')">∞</button>
+            <button class="mkBtn" onclick="insertTakeMath('π')">π</button>
+            <button class="mkBtn" onclick="insertTakeMath('θ')">θ</button>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="mkBtn" onclick="insertTakeMath('α')">α</button>
+            <button class="mkBtn" onclick="insertTakeMath('β')">β</button>
+            <button class="mkBtn" onclick="insertTakeMath('γ')">γ</button>
+            <button class="mkBtn" onclick="insertTakeMath('∑')">∑</button>
+            <button class="mkBtn" onclick="insertTakeMath('∫')">∫</button>
+            <button class="mkBtn" onclick="insertTakeMath('Δ')">Δ</button>
+            <button class="mkBtn" onclick="insertTakeMath('°')">°</button>
+            <button class="mkBtn" onclick="insertTakeMath('²')">²</button>
+          </div>
+          <textarea id="take_roughWork" placeholder="Rough work / working area - use math keyboard here..." style="width:100%;margin-top:10px;padding:8px;border-radius:8px;border:1px solid #cbd5e1;min-height:60px;font-size:13px"></textarea>
+        </div>
+
         <div id="take_examHeader" style="text-align:center;margin:10px 0"></div>
         <form id="take_examForm"></form>
-        <div style="text-align:center;margin:20px"><button style="padding:12px 24px;background:var(--blue2);color:white;border:none;border-radius:10px;font-weight:800;font-size:14px" onclick="submitTakeExam(false)">Submit Exam</button></div>
+        <div style="text-align:center;margin:20px"><button style="padding:12px 24px;background:#0a2463;color:white;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer" onclick="submitTakeExam(false)">Submit Exam</button></div>
       </div>
 
       <!-- Result Slip -->
       <div id="take_resultSection" class="hidden"></div>
+
+      <div style="text-align:center;margin-top:16px"><button class="smallBtn" onclick="cancelTakeExam()">← Back to Exam List</button> <button class="smallBtn save" onclick="openTab('results')">View Results Records</button></div>
     </div>
   </section>
 
   <!-- RESULTS RECORDS TAB -->
+
   <section id="tab-results" class="hidden">
     <div class="card">
       <div class="section-title">Results Records - Take Exam Switch <span class="badge" id="resultsCountBadge">0 records</span> <span class="badge" style="background:#dcfce7;color:#166534">Auto Sync ON</span></div>
@@ -476,203 +504,67 @@ Quick Convert - AI Bank to Switch Package</div><div class="fieldRow" style="marg
       </div>
     </div>
   </section>
+
+  <!-- MY ONLINE EXAMS TAB -->
+  <section id="tab-onlineexams" class="hidden">
+    <div class="card" style="background:#0a1931;color:#cbd5e1;border:1px solid #1e3a5f">
+      <div class="section-title" style="color:#fbbf24">🌐 My Online Exams <span class="badge" id="onlineExamsCountBadge" style="background:#1e3a5f;color:#fbbf24">0 published</span> <span class="badge" style="background:#dcfce7;color:#166534">Live Firebase Sync ON</span></div>
+      <div class="hint" style="color:#94a3b8">Create publishable online exam links. Students open link → Study Notes first → Login Gate (Name + Exam Number) → Timer → Slip % Distinction/Merit/Credit/Pass/Fail + Review → WhatsApp +260972619148. Results auto sync to cloud.</div>
+      
+      <div style="background:#0f2447;border:1px solid #1e3a5f;border-radius:12px;padding:14px;margin-top:14px">
+        <div style="font-weight:800;color:#fbbf24;margin-bottom:8px">📤 Publish New Online Exam</div>
+        <div class="fieldRow" style="margin-top:8px">
+          <select id="onlinePublishPackageSelect" style="flex:1;min-width:200px;padding:10px;border-radius:8px;border:1px solid #1e3a5f;background:#0a1931;color:#e2e8f0"><option value="">Select Exam from Switch Packages Bank</option></select>
+          <button class="save" onclick="publishSelectedOnlineExam()" style="background:#16a34a">🌐 Publish Online</button>
+          <button class="primary" onclick="populateOnlinePublishSelect()">🔄 Refresh Packages</button>
+        </div>
+        <div id="onlinePublishStatus" class="aiStatusLine" style="margin-top:8px;color:#94a3b8"></div>
+        <div class="hint" style="color:#64748b;margin-top:6px">Base link: https://franktembo23-ai.github.io/mtc-notes-creator-/ - Code format like AMICROME5143. Link format: https://franktembo23-ai.github.io/mtc-notes-creator-/?exam=CODE</div>
+      </div>
+
+      <div style="background:#081226;border:1px solid #1e3a5f;border-radius:12px;padding:12px;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div style="font-weight:800;color:#fbbf24">📚 Published Online Exams List</div>
+          <div style="display:flex;gap:8px"><input type="text" id="onlineExamsSearch" placeholder="Search online exams" oninput="renderOnlineExamsList()" style="padding:8px 10px;border-radius:8px;border:1px solid #1e3a5f;background:#0a1931;color:#e2e8f0;font-size:12px"><button class="smallBtn" onclick="renderOnlineExamsList()">🔄 Refresh</button></div>
+        </div>
+        <div id="onlineExamsList" style="margin-top:14px;min-height:120px"></div>
+        <div class="btnRow" style="margin-top:12px">
+          <button class="clear" onclick="clearAllOnlineExams()">🗑 Clear All Links</button>
+          <button class="save" onclick="exportOnlineExamsJSON()">Export JSON</button>
+          <button class="primary" onclick="copyAllOnlineLinks()">📋 Copy All Links</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📊 Online Performance Results Records <span class="badge" id="onlineResultsCountBadge">0 records</span> <span class="badge" style="background:#dcfce7;color:#166534">Live Sync</span></div>
+      <div class="hint">All results from Online Exams (via published links) auto-recorded here live. Synced to Firebase cloud. Delete individual or all.</div>
+      <div class="bankFilters" style="margin-top:10px">
+        <select id="onlineResultsFilterSubject" onchange="renderOnlineResultsBank()"><option value="">All Subjects</option></select>
+        <select id="onlineResultsFilterCode" onchange="renderOnlineResultsBank()"><option value="">All Exam Codes</option></select>
+        <select id="onlineResultsFilterGradeLabel" onchange="renderOnlineResultsBank()"><option value="">All Grades</option><option value="Distinction">Distinction</option><option value="Merit">Merit</option><option value="Credit">Credit</option><option value="Pass">Pass</option><option value="Fail">Fail</option></select>
+        <input type="text" id="onlineResultsSearch" placeholder="Search name / exam no" oninput="renderOnlineResultsBank()" style="flex:1;min-width:140px;padding:8px 10px;border:1px solid #d5ddef;border-radius:9px;font-size:12.5px;background:#fbfcff;">
+      </div>
+      <div id="onlineResultsBankList" style="margin-top:12px"></div>
+      <div class="btnRow" style="margin-top:12px">
+        <button class="clear" onclick="clearOnlineResultsBank()">🗑 Delete All Online Results</button>
+        <button class="save" onclick="exportOnlineResultsCSV()">Export CSV</button>
+        <button class="primary" onclick="renderOnlineResultsBank()">🔄 Refresh / Live Sync</button>
+      </div>
+    </div>
+  </section>
 </main>
+
 
 <script>
 // V3 FIXED ENGINE - NO NESTED BACKTICKS, CLEAN LOGO
 var LS_SETTINGS_KEY = 'mncApp_settings_v1';
 var DB_NAME = 'MTCNotesCreatorDB';
-var DB_VERSION = 8;
+var DB_VERSION = 9;
 var dbInstance = null;
 var GEMINI_MODELS = {'2.5 Flash-Lite':'gemini-2.5-flash-lite','3.1 Flash-Lite':'gemini-3.1-flash-lite','3.5 Flash':'gemini-3.5-flash'};
 var firebaseConfig = {apiKey:"AIzaSyD8CVsnzcNnzieKMd9ycLNKpfMvWl_99eI",authDomain:"mtc-notes.firebaseapp.com",databaseURL:"https://mtc-notes-default-rtdb.europe-west1.firebasedatabase.app",projectId:"mtc-notes",storageBucket:"mtc-notes.firebasestorage.app",messagingSenderId:"1043957109557",appId:"1:1043957109557:web:68944ef5a539926b2ab27c",measurementId:"G-3R85K2NSXD"};
 var FB_ROOT='mtcnotes';
-
-// ===== GLOBAL LOGIN GATE - Student vs Teacher =====
-var currentGlobalRole = 'student';
-var GLOBAL_TEACHER_PASSWORDS = ['MTC@2024','MTC2024','Tembo2024','MTCAdmin','0972619148'];
-
-function switchGlobalLoginRole(role){
-  currentGlobalRole = role;
-  var sBtn=document.getElementById('globalRoleStudentBtn');
-  var tBtn=document.getElementById('globalRoleTeacherBtn');
-  var secondLabel=document.getElementById('globalSecondLabel');
-  var secondInput=document.getElementById('globalExamNumber');
-  var hint=document.getElementById('globalLoginHint');
-  if(role==='student'){
-    if(sBtn){ sBtn.style.background='white'; sBtn.style.color='#0a1931'; sBtn.style.boxShadow='0 2px 6px rgba(0,0,0,0.08)'; sBtn.style.fontWeight='800'; }
-    if(tBtn){ tBtn.style.background='transparent'; tBtn.style.color='#64748b'; tBtn.style.boxShadow='none'; tBtn.style.fontWeight='700'; }
-    if(secondLabel) secondLabel.textContent='Exam Number';
-    if(secondInput){ secondInput.placeholder='Enter your exam number'; secondInput.type='text'; }
-    if(hint) hint.textContent='Students: use your full name and exam number. Teachers: use the staff password.';
-  } else {
-    if(tBtn){ tBtn.style.background='white'; tBtn.style.color='#0a1931'; tBtn.style.boxShadow='0 2px 6px rgba(0,0,0,0.08)'; tBtn.style.fontWeight='800'; }
-    if(sBtn){ sBtn.style.background='transparent'; sBtn.style.color='#64748b'; sBtn.style.boxShadow='none'; sBtn.style.fontWeight='700'; }
-    if(secondLabel) secondLabel.textContent='Staff Password';
-    if(secondInput){ secondInput.placeholder='Enter staff password'; secondInput.type='password'; }
-    if(hint) hint.textContent='Teachers: enter staff password. Default: MTC@2024 (also accepts MTC2024 / 0972619148)';
-  }
-  var err=document.getElementById('globalLoginError'); if(err) err.style.display='none';
-}
-
-function handleGlobalLogin(){
-  var nameEl=document.getElementById('globalFullName');
-  var secondEl=document.getElementById('globalExamNumber');
-  var errEl=document.getElementById('globalLoginError');
-  var name=nameEl?nameEl.value.trim():'';
-  var second=secondEl?secondEl.value.trim():'';
-  if(!name){ if(errEl){ errEl.textContent='Enter Full Name'; errEl.style.display='block'; } if(nameEl) nameEl.focus(); return; }
-  if(!second){ 
-    var msg = currentGlobalRole==='student'?'Enter Exam Number':'Enter Staff Password';
-    if(errEl){ errEl.textContent=msg; errEl.style.display='block'; } 
-    if(secondEl) secondEl.focus(); 
-    return; 
-  }
-  if(currentGlobalRole==='teacher'){
-    if(GLOBAL_TEACHER_PASSWORDS.indexOf(second)===-1){
-      if(errEl){ errEl.textContent='Wrong staff password. Try MTC@2024 or 0972619148'; errEl.style.display='block'; }
-      return;
-    }
-  }
-  // Save role
-  localStorage.setItem('mtc_global_role', currentGlobalRole);
-  localStorage.setItem('mtc_global_name', name);
-  localStorage.setItem('mtc_global_exam', second);
-  localStorage.setItem('mtc_global_login_at', Date.now());
-  // Hide gate
-  var gate=document.getElementById('globalLoginGate');
-  if(gate) gate.style.display='none';
-  // Apply UI
-  applyRoleBasedUI();
-  // If student, go directly to Take Exam
-  if(currentGlobalRole==='student'){
-    try{
-      // Set student data for Take Exam auto-fill
-      var sName=document.getElementById('take_studentName');
-      var eNo=document.getElementById('take_examNumber');
-      // For online separate page, also auto fill
-      if(window._onlineExamCode){
-        // Already in online mode, will be handled separately
-      } else {
-        openTab('takeexam');
-        // Pre-fill take exam login if needed
-        setTimeout(function(){
-          var takeName=document.getElementById('take_studentName');
-          var takeExamNo=document.getElementById('take_examNumber');
-          if(takeName && !takeName.value) takeName.value=name;
-          if(takeExamNo && !takeExamNo.value) takeExamNo.value=second;
-        }, 300);
-      }
-    }catch(e){}
-  } else {
-    // Teacher - show all, go to AI tab default
-    try{ openTab('ai'); }catch(e){}
-  }
-}
-
-function applyRoleBasedUI(){
-  var role=localStorage.getItem('mtc_global_role')||currentGlobalRole;
-  var tabs=['ai','manual','exams','takeexam','results','onlineexams'];
-  var nav=document.querySelector('nav.tabs');
-  var allBtns=document.querySelectorAll('.tab-btn');
-  if(role==='student'){
-    // Student sees ONLY Take Exam
-    for(var i=0;i<allBtns.length;i++){
-      var tab=allBtns[i].getAttribute('data-tab');
-      if(tab==='takeexam'){
-        allBtns[i].style.display='flex';
-        allBtns[i].classList.add('active');
-      } else {
-        allBtns[i].style.display='none';
-        allBtns[i].classList.remove('active');
-      }
-    }
-    // Show only takeexam section
-    for(var j=0;j<tabs.length;j++){
-      var el=document.getElementById('tab-'+tabs[j]);
-      if(el){
-        if(tabs[j]==='takeexam') el.classList.remove('hidden');
-        else el.classList.add('hidden');
-      }
-    }
-    // Hide View Results Records button for student
-    var viewResBtn=document.getElementById('takeExamViewResultsBtn');
-    if(viewResBtn) viewResBtn.style.display='none';
-    // Hide results view buttons inside Take Exam for student (optional - keep View Results Records hidden)
-    var resultsBtns=document.querySelectorAll('[onclick*="results"]');
-    // Keep logout visible
-    addStudentLogoutButton();
-    // Ensure online exams tab is hidden for student
-    var onlineTab=document.getElementById('tab-onlineexams');
-    if(onlineTab) onlineTab.classList.add('hidden');
-  } else {
-    // Teacher - show all
-    for(var k=0;k<allBtns.length;k++){
-      allBtns[k].style.display='flex';
-    }
-    addTeacherLogoutButton();
-  }
-}
-
-function addStudentLogoutButton(){
-  var existing=document.getElementById('studentLogoutBtn');
-  if(existing) return;
-  var nav=document.querySelector('nav.tabs');
-  if(!nav) return;
-  var btn=document.createElement('button');
-  btn.id='studentLogoutBtn';
-  btn.textContent='Logout ('+(localStorage.getItem('mtc_global_name')||'Student')+')';
-  btn.style.cssText='margin-left:auto;background:#dc2626;color:white;border:none;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer';
-  btn.onclick=function(){ logoutGlobal(); };
-  nav.appendChild(btn);
-}
-
-function addTeacherLogoutButton(){
-  var existing=document.getElementById('teacherLogoutBtn');
-  if(existing) existing.remove();
-  var existingS=document.getElementById('studentLogoutBtn');
-  if(existingS) existingS.remove();
-  var nav=document.querySelector('nav.tabs');
-  if(!nav) return;
-  var btn=document.createElement('button');
-  btn.id='teacherLogoutBtn';
-  btn.textContent='Logout Teacher ('+(localStorage.getItem('mtc_global_name')||'Teacher')+')';
-  btn.style.cssText='margin-left:auto;background:#0a1931;color:#fbbf24;border:none;padding:8px 12px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer';
-  btn.onclick=function(){ logoutGlobal(); };
-  nav.appendChild(btn);
-}
-
-function logoutGlobal(){
-  if(!confirm('Logout and switch account?')) return;
-  localStorage.removeItem('mtc_global_role');
-  localStorage.removeItem('mtc_global_name');
-  localStorage.removeItem('mtc_global_exam');
-  location.reload();
-}
-
-function checkGlobalLoginOnLoad(){
-  // If ?exam= is present, bypass global login - online exam has its own separate login
-  try{
-    var params=new URLSearchParams(window.location.search);
-    if(params.get('exam')){
-      var gate=document.getElementById('globalLoginGate');
-      if(gate) gate.style.display='none';
-      return;
-    }
-  }catch(e){}
-  var role=localStorage.getItem('mtc_global_role');
-  var gate=document.getElementById('globalLoginGate');
-  if(!role){
-    if(gate) gate.style.display='flex';
-    switchGlobalLoginRole('student');
-  } else {
-    if(gate) gate.style.display='none';
-    currentGlobalRole=role;
-    // Delay apply until DOM ready
-    setTimeout(function(){ applyRoleBasedUI(); }, 200);
-  }
-}
-
 var settings={geminiApiKey:'',geminiModel:'2.5 Flash-Lite',syncEnabled:false,lastSynced:null,databaseURL:''};
 var genMode='notes'; var recognizing=false; var speechRecognizer=null; var fbApp=null,fbDb=null,fbReady=false,syncTimeoutHandle=null;
 // Take Exam State
@@ -683,7 +575,6 @@ var manualMeta={logoBase64:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAA
 function initApp(){
   try{
     loadSettings();
-    checkGlobalLoginOnLoad();
     var k=document.getElementById('s_geminiKey'); if(k) k.value=settings.geminiApiKey;
     var m=document.getElementById('geminiModelSelect'); if(m) m.value=settings.geminiModel;
     bindTabs();
@@ -693,7 +584,12 @@ function initApp(){
     renderPackagesBank();
     renderTakeExamList();
     renderResultsBank();
+    renderOnlineExamsList();
+    renderOnlineResultsBank();
+    populateOnlinePublishSelect();
+    populateOnlineResultsFilterCodes();
   getStorageEstimate();
+    setTimeout(function(){ checkOnlineExamParam(); }, 800);
 
     populateConverterSelects();
     if(settings.syncEnabled){initFirebase();}
@@ -733,11 +629,6 @@ function bindTabs(){
   }
 }
 function openTab(tab){
-  var role=localStorage.getItem('mtc_global_role');
-  if(role==='student' && tab!=='takeexam'){
-    alert('Students can only access Take Exam panel. Teacher login required for full access.');
-    tab='takeexam';
-  }
   var tabs=['ai','manual','exams','takeexam','results','onlineexams'];
   for(var i=0;i<tabs.length;i++){
     var el=document.getElementById('tab-'+tabs[i]);
@@ -750,7 +641,6 @@ function openTab(tab){
   if(tab==='results'){renderResultsBank();}
   if(tab==='onlineexams'){renderOnlineExamsList(); renderOnlineResultsBank(); populateOnlinePublishSelect(); populateOnlineResultsFilterCodes();}
 }
-
 function setGenMode(mode){
   genMode=mode;
   document.getElementById('modeChipNotes').classList.toggle('active',mode==='notes');
@@ -780,11 +670,12 @@ function openDB(){
       if(!db.objectStoreNames.contains('diagrams')) db.createObjectStore('diagrams',{keyPath:'id'});
       if(!db.objectStoreNames.contains('packages')) db.createObjectStore('packages',{keyPath:'id'});
       if(!db.objectStoreNames.contains('results')) db.createObjectStore('results',{keyPath:'id'});
+      if(!db.objectStoreNames.contains('onlineExams')) db.createObjectStore('onlineExams',{keyPath:'id'});
     };
     req.onsuccess=function(e){
       var db=e.target.result;
       // Double-check stores exist, if not, recreate DB with higher version
-      if(!db.objectStoreNames.contains('packages') || !db.objectStoreNames.contains('notes') || !db.objectStoreNames.contains('exams') || !db.objectStoreNames.contains('results')){
+      if(!db.objectStoreNames.contains('packages') || !db.objectStoreNames.contains('notes') || !db.objectStoreNames.contains('exams') || !db.objectStoreNames.contains('results') || !db.objectStoreNames.contains('onlineExams')){
         console.warn('Missing object stores, recreating DB');
         db.close();
         var req2=indexedDB.open(DB_NAME, DB_VERSION+1);
@@ -795,6 +686,7 @@ function openDB(){
           if(!db2.objectStoreNames.contains('diagrams')) db2.createObjectStore('diagrams',{keyPath:'id'});
           if(!db2.objectStoreNames.contains('packages')) db2.createObjectStore('packages',{keyPath:'id'});
           if(!db2.objectStoreNames.contains('results')) db2.createObjectStore('results',{keyPath:'id'});
+          if(!db2.objectStoreNames.contains('onlineExams')) db2.createObjectStore('onlineExams',{keyPath:'id'});
         };
         req2.onsuccess=function(ev2){
           dbInstance=ev2.target.result;
@@ -818,7 +710,7 @@ function dbGetAll(storeName){return openDB().then(function(db){return new Promis
 function clearSyncTimeout(){if(syncTimeoutHandle){clearTimeout(syncTimeoutHandle); syncTimeoutHandle=null;}}
 function initFirebase(){
   try{
-    if(!fbApp){var cfg={}; for(var k in firebaseConfig){cfg[k]=firebaseConfig[k];} var effectiveURL=getEffectiveDatabaseURL(); if(effectiveURL){cfg.databaseURL=effectiveURL;} console.log('Using Database URL:', effectiveURL); fbApp=firebase.initializeApp(cfg);}
+    if(!fbApp){var cfg={}; for(var k in firebaseConfig){cfg[k]=firebaseConfig[k];} if(settings.databaseURL){cfg.databaseURL=settings.databaseURL;} fbApp=firebase.initializeApp(cfg);}
     fbReady=false; setSyncStatus(true,'Signing in...'); clearSyncTimeout();
     syncTimeoutHandle=setTimeout(function(){setSyncStatus(false,'Sync timed out - tap to retry');},15000);
     firebase.auth().onAuthStateChanged(function(user){if(user){startDatabaseSync();}});
@@ -853,46 +745,8 @@ function clearFirebaseStore(storeName){if(!settings.syncEnabled||!fbReady||!fbDb
 function retrySync(){if(!settings.syncEnabled) return; fbReady=false; initFirebase();}
 function setSyncStatus(on,label){var dot=document.getElementById('syncDot'); if(dot){dot.className='connDot '+(on?'on':'off');} var lab=document.getElementById('syncLabelPill'); if(lab){lab.textContent=label;} var lab2=document.getElementById('syncStatusLabel'); if(lab2){lab2.textContent=label;}}
 function toggleSync(){settings.syncEnabled=!settings.syncEnabled; saveSettingsToStorage(); renderSyncUI(); if(settings.syncEnabled){initFirebase();} else {clearSyncTimeout(); setSyncStatus(false,'Local only');}}
-function isValidDatabaseURL(url){
-  if(!url) return false;
-  if(url.indexOf('...')!==-1) return false;
-  if(url.length<30) return false;
-  if(url.indexOf('firebasedatabase.app')===-1 && url.indexOf('firebaseio.com')===-1) return false;
-  if(url==='https://mtc-notes-default-rtdb.' || url==='https://mtc-notes-default-rtdb') return false;
-  return url.indexOf('https://')===0;
-}
-function getEffectiveDatabaseURL(){
-  var custom=settings.databaseURL?settings.databaseURL.trim():'';
-  if(isValidDatabaseURL(custom)) return custom;
-  return firebaseConfig.databaseURL;
-}
-function saveDatabaseUrl(){
-  var inputEl=document.getElementById('s_databaseURL');
-  var raw=inputEl?inputEl.value.trim():'';
-  if(!raw){
-    settings.databaseURL='';
-    saveSettingsToStorage();
-    try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout();
-    alert('Database URL cleared - using default: '+firebaseConfig.databaseURL);
-    if(settings.syncEnabled){initFirebase();}
-    return;
-  }
-  if(!isValidDatabaseURL(raw)){
-    alert('Invalid URL! Must be full like:\nhttps://mtc-notes-default-rtdb.europe-west1.firebasedatabase.app\n\nYou entered: '+raw+'\n\nClearing and using default.');
-    settings.databaseURL='';
-    if(inputEl) inputEl.value='';
-    saveSettingsToStorage();
-    try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout();
-    if(settings.syncEnabled){initFirebase();}
-    return;
-  }
-  settings.databaseURL=raw;
-  saveSettingsToStorage();
-  try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout();
-  alert('Database URL saved: '+raw);
-  if(settings.syncEnabled){initFirebase();}
-}
-function renderSyncUI(){var t=document.getElementById('syncToggle'); if(t){t.classList.toggle('on',settings.syncEnabled);} var lastEl=document.getElementById('lastSyncedLabel'); if(lastEl){lastEl.textContent=settings.lastSynced?new Date(settings.lastSynced).toLocaleString():'Never';} var urlEl=document.getElementById('s_databaseURL'); if(urlEl){urlEl.value=getEffectiveDatabaseURL();}}
+function saveDatabaseUrl(){settings.databaseURL=document.getElementById('s_databaseURL').value.trim(); saveSettingsToStorage(); try{if(fbApp && fbApp.delete){fbApp.delete();}}catch(e){} fbApp=null; fbDb=null; fbReady=false; clearSyncTimeout(); alert('Database URL saved.'); if(settings.syncEnabled){initFirebase();}}
+function renderSyncUI(){var t=document.getElementById('syncToggle'); if(t){t.classList.toggle('on',settings.syncEnabled);} var lastEl=document.getElementById('lastSyncedLabel'); if(lastEl){lastEl.textContent=settings.lastSynced?new Date(settings.lastSynced).toLocaleString():'Never';} var urlEl=document.getElementById('s_databaseURL'); if(urlEl){urlEl.value=settings.databaseURL;}}
 function callGemini(promptText,systemText,jsonMode){
   var apiKey=settings.geminiApiKey; if(!apiKey){return Promise.reject({message:'Add your Gemini API key below and tap Save Key first.'});}
   var modelId=GEMINI_MODELS[settings.geminiModel]||GEMINI_MODELS['2.5 Flash-Lite'];
@@ -1943,7 +1797,7 @@ function renderPackagesBank(){
       var html='';
       for(var i=0;i<items.length;i++){
         var p=items[i]; var meta=p.meta||{}; var count=(p.mcqQuestions||[]).length; var secCount=(p.notesSections||[]).length;
-        html+='<div class="pkgItem"><div><div style="font-weight:800;color:#0a2463">'+escapeHtml(p.title||meta.title||'Untitled')+'</div><div class="pkgMeta">'+escapeHtml(p.subject||meta.subject||'')+' &middot; '+escapeHtml(p.grade||meta.grade||'')+' &middot; '+escapeHtml(p.topic||meta.topic||'')+' &middot; '+secCount+' sections &middot; '+count+' MCQs</div></div><div class="pkgActions"><button class="smallBtn" onclick="previewPackage(\''+p.id+'\')">Preview</button><button class="smallBtn save" onclick="exportPackageHtml(\''+p.id+'\')">Export HTML</button><button class="smallBtn" onclick="editPackage(\''+p.id+'\')">Edit</button><button class="smallBtn danger" onclick="deleteBankItem(\'packages\',\''+p.id+'\')">Delete</button><button class="smallBtn gold" onclick="openTakeExamFromBank(\''+p.id+'\')">📝 Take Exam</button></div></div>';
+        html+='<div class="pkgItem"><div><div style="font-weight:800;color:#0a2463">'+escapeHtml(p.title||meta.title||'Untitled')+'</div><div class="pkgMeta">'+escapeHtml(p.subject||meta.subject||'')+' &middot; '+escapeHtml(p.grade||meta.grade||'')+' &middot; '+escapeHtml(p.topic||meta.topic||'')+' &middot; '+secCount+' sections &middot; '+count+' MCQs</div></div><div class="pkgActions"><button class="smallBtn" onclick="previewPackage(\''+p.id+'\')">Preview</button><button class="smallBtn save" onclick="exportPackageHtml(\''+p.id+'\')">Export HTML</button><button class="smallBtn" onclick="editPackage(\''+p.id+'\')">Edit</button><button class="smallBtn danger" onclick="deleteBankItem(\'packages\',\''+p.id+'\')">Delete</button><button class="smallBtn gold" onclick="openTakeExamFromBank(\''+p.id+'\')">📝 Take Exam</button><button class="smallBtn" style="background:#16a34a;color:white" onclick="publishOnlineExam(\''+p.id+'\')">🌐 Publish Online</button></div></div>';
       }
       wrap.innerHTML=html;
     }
@@ -2066,6 +1920,7 @@ function toggleMic(){
 }
 
 // ============ TAKE EXAM (STUDENT SWITCH) - INBUILT ============
+
 function renderTakeExamList(){
   dbGetAll('packages').then(function(items){
     items.sort(function(a,b){return (b.updatedAt||0)-(a.updatedAt||0);});
@@ -2084,20 +1939,55 @@ function renderTakeExamList(){
       filtered.push(p);
     }
     var wrap=document.getElementById('takeExamList'); if(!wrap) return;
-    if(filtered.length===0){ wrap.innerHTML='<div class="emptyState">No exams match filter. Auto sync is ON - create packages in Manual Notes or convert from AI Bank. <br><br><button class="smallBtn" onclick="openTab(\'manual\')">Create Exam</button> <button class="smallBtn save" onclick="openTab(\'exams\')">Go to Switch Bank</button></div>'; return; }
+    if(filtered.length===0){ wrap.innerHTML='<div class="emptyState">No exams match filter. Auto sync is ON - create packages in Manual Notes or convert from AI Bank.<br><br><button class="smallBtn" onclick="openTab(\'manual\')">Create Exam</button> <button class="smallBtn save" onclick="openTab(\'exams\')">Go to Switch Bank</button></div>'; return; }
     var html='';
     for(var j=0;j<filtered.length;j++){
       var pkg=filtered[j]; var meta=pkg.meta||{}; var count=(pkg.mcqQuestions||[]).length;
       var dur=meta.duration||60;
-      html+='<div class="takeExamItem">';
-      html+='<div class="examTitle">'+escapeHtml(pkg.title||meta.title||'Untitled Exam')+'</div>';
-      html+='<div class="examMeta"><span>📚 '+escapeHtml(meta.subject||pkg.subject||'General')+'</span><span>🎓 '+escapeHtml(meta.grade||pkg.grade||'')+'</span><span>📝 '+escapeHtml(meta.topic||pkg.topic||'')+'</span><span>⏱ '+dur+' mins</span><span>❓ '+count+' Qs</span></div>';
-      html+='<div class="examStats"><span class="statPill">ID: '+escapeHtml((pkg.id||'').substring(0,12))+'</span><span class="statPill" style="background:#dcfce7;color:#166534">Ready to Take</span></div>';
-      html+='<div class="btnRow" style="margin-top:10px"><button class="save" style="flex:1" onclick="startTakeExamFlow(\''+pkg.id+'\')">▶ Take This Exam (Login Gate)</button><button class="smallBtn" onclick="previewPackage(\''+pkg.id+'\')">Eye Preview</button></div>';
+      var subjTxt = meta.subject||pkg.subject||'General';
+      var gradeTxt = meta.grade||pkg.grade||'';
+      var topicTxt = meta.topic||pkg.topic||'';
+      html+='<div class="takeExamItem" style="border:1px solid #e0e7ff;border-radius:14px;padding:14px;margin-bottom:12px;background:white">';
+      html+='<div style="font-weight:800;color:#0a2463;font-size:14px">'+escapeHtml(pkg.title||meta.title||'Untitled Exam')+'</div>';
+      html+='<div style="font-size:11px;color:#64748b;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap"><span>'+escapeHtml(subjTxt.toUpperCase())+'</span><span>Grade '+escapeHtml(gradeTxt)+'</span><span>'+escapeHtml(topicTxt)+'</span><span>'+dur+' mins</span><span>'+count+' Qs</span></div>';
+      html+='<div style="display:flex;gap:8px;margin-top:10px"><button style="flex:1;background:#16a34a;color:white;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer" onclick="startTakeExamFlow(\''+pkg.id+'\')">Take This Exam (Login Gate)</button><button style="background:#0a2463;color:white;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:12px" onclick="publishOnlineExam(\''+pkg.id+'\')">🌐 Publish Online</button></div>';
       html+='</div>';
     }
     wrap.innerHTML=html;
   });
+}
+
+function takeExamShowTab(tab){
+  var notesView=document.getElementById('take_studyNotesView');
+  var loginGate=document.getElementById('take_loginGate');
+  var examContent=document.getElementById('take_examContent');
+  var resultSection=document.getElementById('take_resultSection');
+  var btnNotes=document.getElementById('take_btnNotes');
+  var btnExam=document.getElementById('take_btnExam');
+  if(!notesView||!loginGate||!examContent) return;
+  notesView.classList.add('hidden');
+  loginGate.classList.add('hidden');
+  examContent.classList.add('hidden');
+  if(resultSection) resultSection.classList.add('hidden');
+  if(btnNotes){btnNotes.style.background='white'; btnNotes.style.color='#0a2463';}
+  if(btnExam){btnExam.style.background='white'; btnExam.style.color='#0a2463';}
+  if(tab==='notes'){
+    notesView.classList.remove('hidden');
+    if(btnNotes){btnNotes.style.background='#c5a348'; btnNotes.style.color='#0a2463';}
+  } else if(tab==='examGate'){
+    if(takeExamStudentData && takeExamSelectedPackage && takeExamRemainingSeconds>0){
+      examContent.classList.remove('hidden');
+      if(btnExam){btnExam.style.background='#fbbf24';}
+    } else {
+      loginGate.classList.remove('hidden');
+      if(btnExam){btnExam.style.background='#fbbf24';}
+    }
+  } else if(tab==='exam'){
+    examContent.classList.remove('hidden');
+    if(btnExam){btnExam.style.background='#fbbf24';}
+  } else if(tab==='result'){
+    if(resultSection) resultSection.classList.remove('hidden');
+  }
 }
 
 function startTakeExamFlow(pkgId){
@@ -2105,42 +1995,71 @@ function startTakeExamFlow(pkgId){
     var pkg=null; for(var i=0;i<items.length;i++){ if(items[i].id===pkgId){ pkg=items[i]; break; } }
     if(!pkg){ alert('Exam package not found'); return; }
     takeExamSelectedPackage=pkg;
+    takeExamStudentData=null;
+    if(takeExamTimerInterval){clearInterval(takeExamTimerInterval); takeExamTimerInterval=null;}
     var meta=pkg.meta||{};
+    var count=(pkg.mcqQuestions||[]).length;
+    var dur=meta.duration||60;
     document.getElementById('takeExamRunnerCard').classList.remove('hidden');
-    document.getElementById('take_loginGate').classList.remove('hidden');
+    var schoolEl=document.getElementById('take_headerSchool'); if(schoolEl) schoolEl.textContent=(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)').toUpperCase();
+    var subEl=document.getElementById('take_headerSub'); if(subEl) subEl.textContent='Excellence in Education | '+(meta.subject||pkg.subject||'')+' Grade '+(meta.grade||pkg.grade||'');
+    var topicEl=document.getElementById('take_headerTopic'); if(topicEl) topicEl.textContent='Topic: '+(meta.topic||pkg.topic||'')+' | Tutor: '+(meta.tutorName||'Mr Tembo')+' | '+(meta.tutorPhone||'0972 619 148');
+    var logoArea=document.getElementById('take_logoArea');
+    if(logoArea){
+      if(meta.logoBase64){ logoArea.innerHTML='<img src="'+meta.logoBase64+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'; }
+      else { logoArea.textContent='MTC'; }
+    }
+    var countLabel=document.getElementById('take_examCountLabel'); if(countLabel) countLabel.textContent=count;
+    var loginDur=document.getElementById('take_loginDuration'); if(loginDur) loginDur.textContent=dur;
+    var loginFooter=document.getElementById('take_loginFooter'); if(loginFooter) loginFooter.textContent='School: '+(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)')+' | Time Allowed: '+dur+' minutes';
+    var notesView=document.getElementById('take_studyNotesView');
+    if(notesView){
+      var notesHtml='';
+      if(pkg.richHTML && pkg.richHTML.trim().length>20){
+        notesHtml = pkg.richHTML;
+      } else if(pkg.notesSections && pkg.notesSections.length>0){
+        notesHtml = buildNotesHTMLFromSections(pkg.notesSections);
+      } else {
+        notesHtml = '<p style="color:#64748b">No study notes for this exam. Click MCQ Exam to start.</p>';
+      }
+      var fullNotes = '<h2 style="color:#0a2463;margin:0 0 14px;font-size:18px">EXAM NOTES: '+(escapeHtml((meta.topic||pkg.topic||'').toUpperCase())||'STUDY NOTES')+'</h2>' + notesHtml + '<p style="margin-top:20px;font-size:11px;color:#94a3b8"><em>Source: MTC Exam Notes - generated by MTC Notes Creator V3 Engine</em></p>';
+      notesView.innerHTML = fullNotes;
+    }
+    document.getElementById('take_loginGate').classList.add('hidden');
     document.getElementById('take_examContent').classList.add('hidden');
-    document.getElementById('take_resultSection').classList.add('hidden');
-    document.getElementById('take_selectedExamTitle').textContent = meta.title||pkg.title||'Selected Exam';
-    document.getElementById('take_selectedExamMeta').textContent = (meta.subject||pkg.subject||'')+' • '+(meta.grade||pkg.grade||'')+' • '+(meta.topic||pkg.topic||'')+' • '+(pkg.mcqQuestions||[]).length+' Questions • '+ (meta.duration||60)+' mins';
+    var resultSec=document.getElementById('take_resultSection'); if(resultSec){resultSec.classList.add('hidden'); resultSec.innerHTML='';}
     document.getElementById('take_studentName').value='';
     document.getElementById('take_examNumber').value='';
+    takeExamShowTab('notes');
     document.getElementById('takeExamRunnerCard').scrollIntoView({behavior:'smooth'});
   });
 }
 
 function cancelTakeExam(){
   if(takeExamTimerInterval){ clearInterval(takeExamTimerInterval); takeExamTimerInterval=null; }
-  document.getElementById('takeExamRunnerCard').classList.add('hidden');
-  document.getElementById('take_loginGate').classList.remove('hidden');
-  document.getElementById('take_examContent').classList.add('hidden');
-  document.getElementById('take_resultSection').classList.add('hidden');
+  var runner=document.getElementById('takeExamRunnerCard');
+  if(runner) runner.classList.add('hidden');
   takeExamSelectedPackage=null;
   takeExamStudentData=null;
-  document.getElementById('takeExamList').scrollIntoView({behavior:'smooth'});
+  takeExamRemainingSeconds=0;
+  var list=document.getElementById('takeExamList');
+  if(list) list.scrollIntoView({behavior:'smooth'});
 }
 
 function startTakeExam(){
   var name=document.getElementById('take_studentName').value.trim();
   var examNo=document.getElementById('take_examNumber').value.trim();
-  if(!name){ alert('Enter Full Name - required for login gate'); document.getElementById('take_studentName').focus(); return; }
-  if(!examNo){ alert('Enter Exam Number - required for login gate'); document.getElementById('take_examNumber').focus(); return; }
+  if(!name){ alert('Enter Full Name - required'); document.getElementById('take_studentName').focus(); return; }
+  if(!examNo){ alert('Enter Exam Number - required'); document.getElementById('take_examNumber').focus(); return; }
   if(!takeExamSelectedPackage){ alert('No exam selected'); return; }
   takeExamStudentData={name:name, examNumber:examNo, startedAt:Date.now()};
-  document.getElementById('take_displayName').textContent=name;
-  document.getElementById('take_displayExamNo').textContent=examNo;
+  var displayName=document.getElementById('take_displayName'); if(displayName) displayName.textContent=name+' ('+examNo+')';
+  var displayNo=document.getElementById('take_displayExamNo'); if(displayNo) displayNo.textContent=examNo;
   document.getElementById('take_loginGate').classList.add('hidden');
+  document.getElementById('take_studyNotesView').classList.add('hidden');
   document.getElementById('take_examContent').classList.remove('hidden');
-  document.getElementById('take_resultSection').classList.add('hidden');
+  var btnExam=document.getElementById('take_btnExam'); if(btnExam){btnExam.style.background='#fbbf24';}
+  var btnNotes=document.getElementById('take_btnNotes'); if(btnNotes){btnNotes.style.background='white';}
   buildTakeExamQuestions();
   startTakeExamTimer();
 }
@@ -2153,12 +2072,14 @@ function buildTakeExamQuestions(){
   if(headerEl){
     var logoHtml='';
     if(meta.logoBase64){ logoHtml='<img src="'+meta.logoBase64+'" style="height:60px;width:60px;border-radius:50%;border:3px solid #c5a348;background:white;padding:3px;margin-bottom:6px"><br>'; }
-    headerEl.innerHTML=logoHtml+'<h3 style="margin:6px 0;color:#0a2463">'+escapeHtml((meta.subject||pkg.subject||'').toUpperCase()+' - '+(meta.topic||pkg.topic||''))+'</h3><div style="font-size:11px;color:#64748b">'+escapeHtml(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)')+' | '+escapeHtml(meta.title||pkg.title||'')+' | '+mcqs.length+' Questions</div>';
+    else { logoHtml='<div style="width:60px;height:60px;border-radius:50%;background:#0a2463;color:#c5a348;display:flex;align-items:center;justify-content:center;font-weight:900;margin:0 auto 6px;border:3px solid #c5a348">MTC</div>'; }
+    headerEl.innerHTML=logoHtml+'<h3 style="margin:6px 0;color:#0a2463">'+escapeHtml((meta.subject||pkg.subject||'').toUpperCase()+' MCQ - '+(meta.topic||pkg.topic||'').toUpperCase())+'</h3>';
   }
   var form=document.getElementById('take_examForm'); form.innerHTML='';
   for(var i=0;i<mcqs.length;i++){
     var q=mcqs[i];
     var qDiv=document.createElement('div'); qDiv.className='questionBlock'; qDiv.id='take_qBlock_'+i;
+    qDiv.style.cssText='margin:18px 0;padding:14px;border-left:4px solid #0a2463;background:#f9fbff;border-radius:6px';
     var diagramHtml='';
     if(q.diagramSrc){ diagramHtml+='<img src="'+q.diagramSrc+'" style="max-width:320px;display:block;margin:8px auto;border:1px solid #ddd;border-radius:8px;padding:4px;background:#fafafa">'; }
     if(q.diagramAlt){ diagramHtml+='<div style="font-size:11px;color:#64748b;text-align:center;margin-bottom:6px">'+escapeHtml(q.diagramAlt)+'</div>'; }
@@ -2166,9 +2087,9 @@ function buildTakeExamQuestions(){
     for(var o=0;o<(q.options||[]).length;o++){
       var optDiagram='';
       if(q.optionDiagrams && q.optionDiagrams[o]){ optDiagram='<br><img src="'+q.optionDiagrams[o]+'" style="max-width:200px;display:block;margin:6px 0;border:1px solid #ddd;border-radius:6px;padding:3px">'; }
-      optsHtml+='<label style="display:block;margin:8px 0;padding:10px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;background:#fbfdff"><input type="radio" name="take_q'+i+'" value="'+o+'" onchange="updateTakeProgress()" style="margin-right:6px"> <strong>'+String.fromCharCode(65+o)+'.</strong> '+escapeHtml(q.options[o]) + optDiagram + '</label>';
+      optsHtml+='<label style="display:block;margin:8px 0;padding:10px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;background:white"><input type="radio" name="take_q'+i+'" value="'+o+'" onchange="updateTakeProgress()" style="margin-right:6px"> <strong>'+String.fromCharCode(65+o)+'.</strong> '+escapeHtml(q.options[o]) + optDiagram + '</label>';
     }
-    qDiv.innerHTML='<div style="display:flex;justify-content:space-between"><h4 style="margin:0 0 8px;color:#0a2463">Q'+(i+1)+'. '+escapeHtml(q.q||'')+'</h4><span style="font-size:10px;background:#eef2ff;color:#1e40af;padding:2px 8px;border-radius:20px;height:fit-content">'+(q.marks||1)+' mark</span></div>'+diagramHtml+'<div class="options">'+optsHtml+'</div>';
+    qDiv.innerHTML='<h4 style="margin:0 0 8px;color:#0a2463">Q'+(i+1)+'. '+escapeHtml(q.q||'')+'</h4>'+diagramHtml+'<div class="options">'+optsHtml+'</div>';
     form.appendChild(qDiv);
   }
   updateTakeProgress();
@@ -2207,9 +2128,32 @@ function startTakeExamTimer(){
   },1000);
 }
 
+function toggleTakeMathKeyboard(){
+  var kb=document.getElementById('take_mathKeyboard');
+  if(!kb) return;
+  var inner=kb.querySelector('#take_mk_123');
+  if(inner){
+    inner.style.display = (inner.style.display==='none')?'grid':'none';
+  }
+}
+
+function insertTakeMath(sym){
+  var rough=document.getElementById('take_roughWork');
+  if(rough){
+    var start=rough.selectionStart||0;
+    var end=rough.selectionEnd||0;
+    var text=rough.value||'';
+    rough.value=text.substring(0,start)+sym+text.substring(end);
+    rough.focus();
+    rough.selectionStart=rough.selectionEnd=start+sym.length;
+  } else {
+    copyToClipboard(sym);
+  }
+}
+
 function submitTakeExam(isAuto){
   if(!isAuto){
-    if(!confirm('Submit exam now? You cannot change after submit.')) return;
+    if(!confirm('Submit exam now?')) return;
   }
   if(takeExamTimerInterval){ clearInterval(takeExamTimerInterval); takeExamTimerInterval=null; }
   var pkg=takeExamSelectedPackage; if(!pkg){ alert('No exam'); return; }
@@ -2226,19 +2170,19 @@ function submitTakeExam(isAuto){
   }
   var total=mcqs.length||1;
   var percent=Math.round(score/total*100);
-  var gradeLabel='', gradeClass='';
+  var gradeLabel=''; var gradeClass='';
   if(percent>=75){ gradeLabel='Distinction'; gradeClass='Distinction'; }
   else if(percent>=65){ gradeLabel='Merit'; gradeClass='Merit'; }
   else if(percent>=50){ gradeLabel='Credit'; gradeClass='Credit'; }
   else if(percent>=40){ gradeLabel='Pass'; gradeClass='Pass'; }
   else { gradeLabel='Fail'; gradeClass='Fail'; }
-
-  // Save result
+  var isOnlineMode = window._onlineExamMode && window._onlineExamCode;
   var resultRecord={
     id:newId(),
     studentName:takeExamStudentData?takeExamStudentData.name:'Unknown',
     examNumber:takeExamStudentData?takeExamStudentData.examNumber:'N/A',
     packageId:pkg.id,
+    onlineCode: isOnlineMode ? window._onlineExamCode : (pkg.onlineCode||''),
     title:meta.title||pkg.title||'Exam',
     subject:meta.subject||pkg.subject||'',
     grade:meta.grade||pkg.grade||'',
@@ -2249,21 +2193,22 @@ function submitTakeExam(isAuto){
     percent:percent,
     gradeLabel:gradeLabel,
     answers:results,
+    isOnline: !!isOnlineMode,
     createdAt:Date.now(),
     updatedAt:Date.now()
   };
   dbPut('results', resultRecord).then(function(saved){
     pushToFirebase('results', saved);
     renderResultsBank();
+    renderOnlineResultsBank();
   });
-
-  // Show result slip
   var resultDiv=document.getElementById('take_resultSection');
   resultDiv.classList.remove('hidden');
   document.getElementById('take_examContent').classList.add('hidden');
-  var waText = "MTC Results Slip%0AName: "+encodeURIComponent(resultRecord.studentName)+"%0AExam No: "+encodeURIComponent(resultRecord.examNumber)+"%0ASubject: "+encodeURIComponent(resultRecord.subject+" - "+resultRecord.topic)+"%0ATitle: "+encodeURIComponent(resultRecord.title)+"%0AScore: "+resultRecord.score+" / "+resultRecord.total+" ("+resultRecord.percent+"%)%0AGrade: "+resultRecord.gradeLabel+"%0ADate: "+encodeURIComponent(new Date().toLocaleDateString())+"%0ASchool: "+encodeURIComponent(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)');
+  document.getElementById('take_studyNotesView').classList.add('hidden');
+  document.getElementById('take_loginGate').classList.add('hidden');
+  var waText = "MTC Results Slip%0AName: "+encodeURIComponent(resultRecord.studentName)+"%0AExam No: "+encodeURIComponent(resultRecord.examNumber)+"%0ASubject: "+encodeURIComponent(resultRecord.subject+" - "+resultRecord.topic)+"%0ATitle: "+encodeURIComponent(resultRecord.title)+"%0AScore: "+resultRecord.score+" / "+resultRecord.total+" ("+resultRecord.percent+"%)%0AGrade: "+resultRecord.gradeLabel+"%0ADate: "+encodeURIComponent(new Date().toLocaleDateString());
   var waLink="https://wa.me/260972619148?text="+waText;
-
   var html='';
   html+='<div style="text-align:center;padding:14px;background:linear-gradient(135deg,#0a2463,#1e40af);color:white;border-radius:12px;margin-bottom:14px"><h2 style="margin:0;color:#f0c674">MTC Exam Result Slip</h2><div style="font-size:11px;color:#dbeafe;margin-top:4px">'+escapeHtml(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)')+'</div></div>';
   html+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px">';
@@ -2271,13 +2216,13 @@ function submitTakeExam(isAuto){
   html+='<p style="margin:4px 0"><strong>Exam No:</strong> '+escapeHtml(resultRecord.examNumber)+'</p>';
   html+='<p style="margin:4px 0"><strong>Exam:</strong> '+escapeHtml(resultRecord.title)+' - '+escapeHtml(resultRecord.subject)+' '+escapeHtml(resultRecord.grade)+'</p>';
   html+='<p style="margin:4px 0"><strong>Date:</strong> '+new Date().toLocaleDateString()+'</p>';
-  html+='<p style="margin:4px 0"><strong>Duration:</strong> '+(meta.duration||60)+' mins</p>';
+  if(resultRecord.onlineCode){ html+='<p style="margin:4px 0"><strong>Online Code:</strong> '+escapeHtml(resultRecord.onlineCode)+'</p>'; }
   html+='</div>';
   html+='<div style="text-align:center;margin:16px 0"><h3 style="margin:0">Score: '+score+' / '+total+' ('+percent+'%)</h3><div style="margin-top:10px"><span class="grade-badge '+gradeClass+'" style="font-size:14px;padding:8px 18px">'+gradeLabel+'</span></div></div>';
   html+='<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:18px 0">';
-  html+='<a href="'+waLink+'" target="_blank" style="background:#25D366;color:white;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;gap:8px">📱 Send Results via WhatsApp to Mr Tembo (0972619148)</a>';
-  html+='<button class="smallBtn" style="padding:10px 16px" onclick="copyTakeResultText(\''+resultRecord.id+'\')">📋 Copy Results</button>';
-  html+='<button class="smallBtn gold" style="padding:10px 16px" onclick="window.print()">🖨 Print Slip</button>';
+  html+='<a href="'+waLink+'" target="_blank" style="background:#25D366;color:white;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:800;display:inline-flex;align-items:center;gap:8px">Send Results via WhatsApp to Mr Tembo (0972619148)</a>';
+  html+='<button class="smallBtn" style="padding:10px 16px" onclick="copyTakeResultText(\''+resultRecord.id+'\')">Copy Results</button>';
+  html+='<button class="smallBtn gold" style="padding:10px 16px" onclick="window.print()">Print Slip</button>';
   html+='</div>';
   html+='<h3 style="color:#0a2463;margin-top:20px">Answer Review</h3>';
   for(var i=0;i<results.length;i++){
@@ -2285,25 +2230,23 @@ function submitTakeExam(isAuto){
     var chosenText = r.chosen>=0 ? String.fromCharCode(65+r.chosen)+'. '+escapeHtml(r.options[r.chosen]) : '<em>No answer</em>';
     var correctText = String.fromCharCode(65+r.answer)+'. '+escapeHtml(r.options[r.answer]);
     var borderColor = r.correct ? '#16a34a' : '#dc2626';
-    html+='<div class="questionBlock" style="border-left:4px solid '+borderColor+'">';
-    html+='<h4 style="margin:0 0 6px">Q'+(i+1)+'. '+escapeHtml(r.q)+' '+(r.correct?'✅':'❌')+'</h4>';
+    html+='<div class="questionBlock" style="border-left:4px solid '+borderColor+';margin:12px 0;padding:12px;background:#fff;border-radius:8px">';
+    html+='<h4 style="margin:0 0 6px">Q'+(i+1)+'. '+escapeHtml(r.q)+' '+(r.correct?'✔':'✖')+'</h4>';
     html+='<p style="margin:4px 0;font-size:13px">Your answer: <strong style="color:'+(r.correct?'#16a34a':'#dc2626')+'">'+chosenText+'</strong></p>';
     html+='<p style="margin:4px 0;font-size:13px">Correct answer: <strong style="color:#16a34a">'+correctText+'</strong></p>';
     if(r.diagramSrc){ html+='<img src="'+r.diagramSrc+'" style="max-width:260px;margin-top:6px;border:1px solid #ddd;border-radius:6px">'; }
     html+='</div>';
   }
   html+='<div class="btnRow" style="margin-top:20px"><button class="primary" onclick="cancelTakeExam()">Take Another Exam</button><button class="clear" onclick="openTab(\'results\')">View All Results</button></div>';
-
   resultDiv.innerHTML=html;
   resultDiv.scrollIntoView({behavior:'smooth'});
-  // Auto scroll top of result
 }
 
 function copyTakeResultText(resultId){
   dbGetAll('results').then(function(items){
     var rec=null; for(var i=0;i<items.length;i++){ if(items[i].id===resultId){ rec=items[i]; break; } }
-    if(!rec){ // use last displayed if not found
-      var nameEl=document.getElementById('take_displayName'); var scoreText=document.querySelector('#take_resultSection h3');
+    if(!rec){
+      var scoreText=document.querySelector('#take_resultSection h3');
       var txt = scoreText?scoreText.innerText:'Result';
       copyToClipboard(txt);
       return;
@@ -2313,7 +2256,6 @@ function copyTakeResultText(resultId){
   });
 }
 
-// ============ RESULTS RECORDS - AUTO SYNC ============
 function renderResultsBank(){
   dbGetAll('results').then(function(items){
     items.sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});
@@ -2339,19 +2281,10 @@ function renderResultsBank(){
       var rec=filtered[j];
       var dateStr=new Date(rec.createdAt).toLocaleString();
       html+='<div class="resultItem">';
-      html+='<div class="rTop"><div><div class="rName">'+escapeHtml(rec.studentName)+' <span style="font-weight:400;color:#64748b">('+escapeHtml(rec.examNumber)+')</span></div><div class="rMeta">'+escapeHtml(rec.title)+' • '+escapeHtml(rec.subject)+' '+escapeHtml(rec.grade)+' • '+escapeHtml(rec.topic)+' • '+dateStr+'</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="statPill">Score: '+rec.score+'/'+rec.total+'</span><span class="statPill">'+rec.percent+'%</span><span class="grade-badge '+rec.gradeLabel+'">'+rec.gradeLabel+'</span></div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="smallBtn" onclick="viewResultDetail(\''+rec.id+'\')">View Slip</button><button class="smallBtn save" onclick="shareResultWhatsApp(\''+rec.id+'\')">WhatsApp</button><button class="smallBtn danger" onclick="deleteResult(\''+rec.id+'\')">Delete</button></div></div>';
+      html+='<div class="rTop"><div><div class="rName">'+escapeHtml(rec.studentName)+' <span style="font-weight:400;color:#64748b">('+escapeHtml(rec.examNumber)+')</span></div><div class="rMeta">'+escapeHtml(rec.title)+' - '+escapeHtml(rec.subject)+' '+escapeHtml(rec.grade)+' - '+dateStr+(rec.isOnline?' <span style="background:#0a2463;color:#fbbf24;padding:2px 6px;border-radius:4px;font-size:9px">ONLINE '+escapeHtml(rec.onlineCode||'')+'</span>':'')+'</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="statPill">Score: '+rec.score+'/'+rec.total+'</span><span class="statPill">'+rec.percent+'%</span><span class="grade-badge '+rec.gradeLabel+'">'+rec.gradeLabel+'</span></div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="smallBtn" onclick="viewResultDetail(\''+rec.id+'\')">View Slip</button><button class="smallBtn save" onclick="shareResultWhatsApp(\''+rec.id+'\')">WhatsApp</button><button class="smallBtn danger" onclick="deleteResult(\''+rec.id+'\')">Delete</button></div></div>';
       html+='</div>';
     }
     wrap.innerHTML=html;
-    // Update filters if empty (populate from results too)
-    if(items.length>0){
-      var subs={}, grades={};
-      for(var k=0;k<items.length;k++){ if(items[k].subject) subs[items[k].subject]=1; if(items[k].grade) grades[items[k].grade]=1; }
-      var rSub=document.getElementById('resultsFilterSubject');
-      if(rSub && rSub.options.length<=1){ var cur=rSub.value; var h='<option value="">All Subjects</option>'; for(var s in subs){ h+='<option value="'+escapeAttr(s)+'">'+escapeHtml(s)+'</option>'; } rSub.innerHTML=h; rSub.value=cur; }
-      var rGr=document.getElementById('resultsFilterGrade');
-      if(rGr && rGr.options.length<=1){ var curG=rGr.value; var h2='<option value="">All Grades</option>'; for(var g in grades){ h2+='<option value="'+escapeAttr(g)+'">'+escapeHtml(g)+'</option>'; } rGr.innerHTML=h2; rGr.value=curG; }
-    }
   });
 }
 
@@ -2361,12 +2294,12 @@ function viewResultDetail(id){
     if(!rec){ alert('Result not found'); return; }
     var waText = "MTC Results Slip%0AName: "+encodeURIComponent(rec.studentName)+"%0AExam No: "+encodeURIComponent(rec.examNumber)+"%0ASubject: "+encodeURIComponent(rec.subject+" - "+rec.topic)+"%0ATitle: "+encodeURIComponent(rec.title)+"%0AScore: "+rec.score+" / "+rec.total+" ("+rec.percent+"%)%0AGrade: "+rec.gradeLabel+"%0ADate: "+encodeURIComponent(new Date(rec.createdAt).toLocaleDateString());
     var waLink="https://wa.me/260972619148?text="+waText;
-    var html='<div class="card" style="max-width:600px;margin:20px auto"><div style="text-align:center"><h2 style="color:#0a2463">MTC Result Slip</h2><p>'+escapeHtml(rec.studentName)+' ('+escapeHtml(rec.examNumber)+')<br>'+escapeHtml(rec.title)+' - '+escapeHtml(rec.subject)+' '+escapeHtml(rec.grade)+'<br>'+new Date(rec.createdAt).toLocaleString()+'</p><h3>Score: '+rec.score+'/'+rec.total+' ('+rec.percent+'%)</h3><span class="grade-badge '+rec.gradeLabel+'" style="font-size:14px;padding:8px 18px">'+rec.gradeLabel+'</span><div style="margin:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a href="'+waLink+'" target="_blank" style="background:#25D366;color:white;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:800">📱 WhatsApp +260972619148</a><button class="smallBtn" onclick="renderResultsBank()">Back to List</button></div></div><h3 style="margin-top:20px;color:#0a2463">Answer Review</h3>';
+    var html='<div class="card" style="max-width:600px;margin:20px auto"><div style="text-align:center"><h2 style="color:#0a2463">MTC Result Slip</h2><p>'+escapeHtml(rec.studentName)+' ('+escapeHtml(rec.examNumber)+')<br>'+escapeHtml(rec.title)+' - '+escapeHtml(rec.subject)+' '+escapeHtml(rec.grade)+'<br>'+new Date(rec.createdAt).toLocaleString()+'</p><h3>Score: '+rec.score+'/'+rec.total+' ('+rec.percent+'%)</h3><span class="grade-badge '+rec.gradeLabel+'" style="font-size:14px;padding:8px 18px">'+rec.gradeLabel+'</span><div style="margin:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a href="'+waLink+'" target="_blank" style="background:#25D366;color:white;padding:10px 18px;border-radius:8px;text-decoration:none;font-weight:800">WhatsApp +260972619148</a><button class="smallBtn" onclick="renderResultsBank()">Back to List</button></div></div><h3 style="margin-top:20px;color:#0a2463">Answer Review</h3>';
     for(var i=0;i<(rec.answers||[]).length;i++){
       var a=rec.answers[i];
       var chosenText = a.chosen>=0 ? String.fromCharCode(65+a.chosen)+'. '+escapeHtml(a.options[a.chosen]) : '<em>No answer</em>';
       var correctText = String.fromCharCode(65+a.answer)+'. '+escapeHtml(a.options[a.answer]);
-      html+='<div class="questionBlock" style="border-left:4px solid '+(a.correct?'#16a34a':'#dc2626')+'"><h4>Q'+(i+1)+'. '+escapeHtml(a.q)+' '+(a.correct?'✅':'❌')+'</h4><p>Your: <strong style="color:'+(a.correct?'#16a34a':'#dc2626')+'">'+chosenText+'</strong></p><p>Correct: <strong style="color:#16a34a">'+correctText+'</strong></p></div>';
+      html+='<div class="questionBlock" style="border-left:4px solid '+(a.correct?'#16a34a':'#dc2626')+'"><h4>Q'+(i+1)+'. '+escapeHtml(a.q)+' '+(a.correct?'✔':'✖')+'</h4><p>Your: <strong style="color:'+(a.correct?'#16a34a':'#dc2626')+'">'+chosenText+'</strong></p><p>Correct: <strong style="color:#16a34a">'+correctText+'</strong></p></div>';
     }
     html+='</div>';
     var wrap=document.getElementById('resultsBankList');
@@ -2386,19 +2319,21 @@ function shareResultWhatsApp(id){
 }
 
 function deleteResult(id){
-  if(!confirm('Delete this result? This cannot be undone.')) return;
+  if(!confirm('Delete this result?')) return;
   dbDelete('results', id).then(function(){
     deleteFromFirebase('results', id);
     renderResultsBank();
+    renderOnlineResultsBank();
   });
 }
 
 function clearResultsBank(){
-  if(!confirm('Delete ALL results? This will remove all student exam records permanently.')) return;
-  if(!confirm('Confirm again: Delete ALL results?')) return;
+  if(!confirm('Delete ALL results?')) return;
+  if(!confirm('Confirm again: Delete ALL?')) return;
   dbClear('results').then(function(){
     clearFirebaseStore('results');
     renderResultsBank();
+    renderOnlineResultsBank();
     alert('All results deleted');
   });
 }
@@ -2406,14 +2341,599 @@ function clearResultsBank(){
 function exportResultsCSV(){
   dbGetAll('results').then(function(items){
     if(items.length===0){ alert('No results to export'); return; }
-    var csv='Name,ExamNumber,Title,Subject,Grade,Topic,Score,Total,Percent,GradeLabel,Date\n';
+    var csv='Name,ExamNumber,Title,Subject,Grade,Topic,Score,Total,Percent,GradeLabel,OnlineCode,Date\n';
     for(var i=0;i<items.length;i++){
       var r=items[i];
-      var row=[r.studentName, r.examNumber, r.title, r.subject, r.grade, r.topic, r.score, r.total, r.percent, r.gradeLabel, new Date(r.createdAt).toLocaleString()];
+      var row=[r.studentName, r.examNumber, r.title, r.subject, r.grade, r.topic, r.score, r.total, r.percent, r.gradeLabel, r.onlineCode||'', new Date(r.createdAt).toLocaleString()];
       csv+=row.map(function(v){ return '"'+String(v||'').replace(/"/g,'""')+'"'; }).join(',')+'\n';
     }
     downloadBlob('MTC_Results_'+new Date().toISOString().slice(0,10)+'.csv', csv, 'text/csv');
   });
+}
+
+/* ===== ONLINE EXAMS PUBLISH SYSTEM ===== */
+var onlineExamsCache=[];
+var ONLINE_BASE_LINK='https://franktembo23-ai.github.io/mtc-notes-creator-/';
+
+function generateExamCode(title){
+  var base = String(title||'EXAM').toUpperCase().replace(/[^A-Z0-9]/g,'').substring(0,8);
+  if(base.length<3) base='MTC'+base;
+  var num = Math.floor(1000+Math.random()*9000);
+  return base+num;
+}
+
+function populateOnlinePublishSelect(){
+  dbGetAll('packages').then(function(items){
+    var sel=document.getElementById('onlinePublishPackageSelect');
+    if(!sel) return;
+    sel.innerHTML='<option value="">Select Exam from Switch Packages Bank</option>';
+    for(var i=0;i<items.length;i++){
+      var p=items[i]; var meta=p.meta||{};
+      var count=(p.mcqQuestions||[]).length;
+      sel.innerHTML+='<option value="'+p.id+'">'+escapeHtml((meta.title||p.title||'Untitled')+' - '+(meta.subject||p.subject||'')+' '+(meta.grade||p.grade||'')+' ('+count+' Qs)')+'</option>';
+    }
+    setOnlinePublishStatus('Packages refreshed: '+items.length, 'ok');
+  });
+}
+
+function setOnlinePublishStatus(msg,kind){
+  var el=document.getElementById('onlinePublishStatus');
+  if(!el) return;
+  el.textContent=msg;
+  el.className='aiStatusLine'+(kind==='err'?' err':(kind==='ok'?' ok':''));
+}
+
+function publishSelectedOnlineExam(){
+  var sel=document.getElementById('onlinePublishPackageSelect');
+  if(!sel || !sel.value){ alert('Select an exam package first'); return; }
+  publishOnlineExam(sel.value);
+}
+
+function publishOnlineExam(packageId){
+  dbGetAll('packages').then(function(items){
+    var pkg=null; for(var i=0;i<items.length;i++){ if(items[i].id===packageId){ pkg=items[i]; break; } }
+    if(!pkg){ alert('Package not found'); return; }
+    var meta=pkg.meta||{};
+    var title = meta.title||pkg.title||'Untitled Exam';
+    var code = generateExamCode(title);
+    // Ensure unique
+    dbGetAll('onlineExams').then(function(existing){
+      for(var e=0;e<existing.length;e++){ if(existing[e].code===code){ code=generateExamCode(title+Math.random()); break; } }
+      var link = ONLINE_BASE_LINK + '?exam='+code;
+      var record={
+        id:newId(),
+        code:code,
+        packageId:pkg.id,
+        title:title,
+        subject:meta.subject||pkg.subject||'',
+        grade:meta.grade||pkg.grade||'',
+        topic:meta.topic||pkg.topic||'',
+        questionCount:(pkg.mcqQuestions||[]).length,
+        duration:meta.duration||60,
+        link:link,
+        packageData: pkg,
+        publishedAt:Date.now(),
+        updatedAt:Date.now()
+      };
+      dbPut('onlineExams', record).then(function(saved){
+        pushToFirebase('onlineExams', saved);
+        setOnlinePublishStatus('Published Online: '+title+' ['+code+'] Link: '+link, 'ok');
+        renderOnlineExamsList();
+        populateOnlineResultsFilterCodes();
+        alert('Online Exam Published!\nCode: '+code+'\nLink: '+link+'\n\nLink copied to clipboard');
+        copyToClipboard(link);
+      });
+    });
+  });
+}
+
+function renderOnlineExamsList(){
+  dbGetAll('onlineExams').then(function(items){
+    items.sort(function(a,b){return (b.publishedAt||0)-(a.publishedAt||0);});
+    onlineExamsCache=items;
+    var badge=document.getElementById('onlineExamsCountBadge'); if(badge) badge.textContent=items.length+' published';
+    var searchInput=document.getElementById('onlineExamsSearch');
+    var searchVal=searchInput?(searchInput.value||'').toLowerCase():'';
+    var filtered=[];
+    for(var i=0;i<items.length;i++){
+      var o=items[i];
+      var hay=(o.title+' '+o.code+' '+o.subject+' '+o.grade+' '+o.topic).toLowerCase();
+      if(searchVal && hay.indexOf(searchVal)===-1) continue;
+      filtered.push(o);
+    }
+    var wrap=document.getElementById('onlineExamsList'); if(!wrap) return;
+    if(filtered.length===0){
+      wrap.innerHTML='<div style="text-align:center;padding:20px;color:#64748b">No online exams published yet. Select a package above and click Publish Online.<br><br>Link format: '+ONLINE_BASE_LINK+'?exam=CODE</div>';
+      return;
+    }
+    var html='';
+    for(var j=0;j<filtered.length;j++){
+      var rec=filtered[j];
+      var dateStr=new Date(rec.publishedAt).toLocaleDateString('en-GB');
+      var timeStr=new Date(rec.publishedAt).toLocaleDateString();
+      html+='<div style="border-bottom:1px solid #1e3a5f;padding:12px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">';
+      html+='<div style="flex:1;min-width:220px">';
+      html+='<div style="display:flex;align-items:center;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block"></span><span style="font-weight:800;color:#f1f5f9">'+escapeHtml(rec.title)+' </span><span style="color:#fbbf24;font-weight:800">['+escapeHtml(rec.code)+']</span></div>';
+      html+='<div style="font-size:12px;color:#94a3b8;margin-top:2px">'+escapeHtml(rec.subject)+' '+escapeHtml(rec.grade)+' • '+rec.questionCount+' questions • Published: '+dateStr+'</div>';
+      html+='<div style="margin-top:6px;display:flex;align-items:center;gap:6px"><span style="color:#64748b">🔗</span><a href="'+rec.link+'" target="_blank" style="color:#60a5fa;font-size:12px;word-break:break-all;text-decoration:underline">'+escapeHtml(rec.link)+'</a></div>';
+      html+='</div>';
+      html+='<div style="display:flex;gap:6px;flex-shrink:0"><button style="background:#1e40af;color:white;border:none;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer" onclick="copyOnlineLink(\''+rec.code+'\')">📋 Link</button><button style="background:#dc2626;color:white;border:none;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer" onclick="deleteOnlineExam(\''+rec.id+'\')">🗑</button></div>';
+      html+='</div>';
+    }
+    wrap.innerHTML=html;
+  });
+}
+
+function copyOnlineLink(code){
+  dbGetAll('onlineExams').then(function(items){
+    var rec=null; for(var i=0;i<items.length;i++){ if(items[i].code===code){ rec=items[i]; break; } }
+    if(!rec) return;
+    copyToClipboard(rec.link);
+    alert('Link copied: '+rec.link);
+  });
+}
+
+function deleteOnlineExam(id){
+  if(!confirm('Delete this online exam link? Students will no longer access via this code.')) return;
+  dbDelete('onlineExams', id).then(function(){
+    deleteFromFirebase('onlineExams', id);
+    renderOnlineExamsList();
+    populateOnlineResultsFilterCodes();
+  });
+}
+
+function clearAllOnlineExams(){
+  if(!confirm('Clear ALL online exam links? This cannot be undone.')) return;
+  if(!confirm('Confirm again: Delete ALL online exams?')) return;
+  dbClear('onlineExams').then(function(){
+    clearFirebaseStore('onlineExams');
+    renderOnlineExamsList();
+    populateOnlineResultsFilterCodes();
+    alert('All online exams cleared');
+  });
+}
+
+function exportOnlineExamsJSON(){
+  dbGetAll('onlineExams').then(function(items){
+    if(items.length===0){ alert('No online exams'); return; }
+    var json=JSON.stringify(items,null,2);
+    downloadBlob('MTC_OnlineExams_'+new Date().toISOString().slice(0,10)+'.json', json, 'application/json');
+  });
+}
+
+function copyAllOnlineLinks(){
+  dbGetAll('onlineExams').then(function(items){
+    if(items.length===0){ alert('No links'); return; }
+    var txt=''; for(var i=0;i<items.length;i++){ txt+=items[i].title+' ['+items[i].code+']\n'+items[i].link+'\n\n'; }
+    copyToClipboard(txt);
+    alert('All links copied');
+  });
+}
+
+function populateOnlineResultsFilterCodes(){
+  dbGetAll('onlineExams').then(function(items){
+    var sel=document.getElementById('onlineResultsFilterCode');
+    if(!sel) return;
+    var current=sel.value;
+    sel.innerHTML='<option value="">All Exam Codes</option>';
+    for(var i=0;i<items.length;i++){
+      sel.innerHTML+='<option value="'+escapeHtml(items[i].code)+'">'+escapeHtml(items[i].code+' - '+items[i].title)+'</option>';
+    }
+    if(current) sel.value=current;
+  });
+}
+
+function renderOnlineResultsBank(){
+  dbGetAll('results').then(function(items){
+    // Filter online only
+    var onlineItems=[];
+    for(var i=0;i<items.length;i++){ if(items[i].isOnline || items[i].onlineCode) onlineItems.push(items[i]); }
+    onlineItems.sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});
+    var badge=document.getElementById('onlineResultsCountBadge'); if(badge) badge.textContent=onlineItems.length+' records';
+    var subFilter=document.getElementById('onlineResultsFilterSubject'); var codeFilter=document.getElementById('onlineResultsFilterCode'); var gradeLabelFilter=document.getElementById('onlineResultsFilterGradeLabel'); var searchInput=document.getElementById('onlineResultsSearch');
+    var subVal=subFilter?subFilter.value:''; var codeVal=codeFilter?codeFilter.value:''; var gradeLabelVal=gradeLabelFilter?gradeLabelFilter.value:''; var searchVal=searchInput?(searchInput.value||'').toLowerCase():'';
+    var filtered=[];
+    for(var j=0;j<onlineItems.length;j++){
+      var r=onlineItems[j];
+      if(subVal && (r.subject||'')!==subVal) continue;
+      if(codeVal && (r.onlineCode||'')!==codeVal) continue;
+      if(gradeLabelVal && (r.gradeLabel||'')!==gradeLabelVal) continue;
+      if(searchVal){
+        var hay=(r.studentName+' '+r.examNumber+' '+r.title+' '+r.onlineCode).toLowerCase();
+        if(hay.indexOf(searchVal)===-1) continue;
+      }
+      filtered.push(r);
+    }
+    var wrap=document.getElementById('onlineResultsBankList'); if(!wrap) return;
+    if(filtered.length===0){ wrap.innerHTML='<div class="emptyState">No online results yet. Publish an online exam and share the link. Results will appear here live via Firebase sync.</div>'; return; }
+    var html='';
+    for(var k=0;k<filtered.length;k++){
+      var rec=filtered[k];
+      var dateStr=new Date(rec.createdAt).toLocaleString();
+      html+='<div class="resultItem" style="border-left:4px solid #0a2463">';
+      html+='<div class="rTop"><div><div class="rName">'+escapeHtml(rec.studentName)+' <span style="font-weight:400;color:#64748b">('+escapeHtml(rec.examNumber)+')</span> <span style="background:#0a1931;color:#fbbf24;padding:2px 6px;border-radius:4px;font-size:10px">'+escapeHtml(rec.onlineCode||'ONLINE')+'</span></div><div class="rMeta">'+escapeHtml(rec.title)+' - '+escapeHtml(rec.subject)+' '+escapeHtml(rec.grade)+' - '+dateStr+'</div><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="statPill">Score: '+rec.score+'/'+rec.total+'</span><span class="statPill">'+rec.percent+'%</span><span class="grade-badge '+rec.gradeLabel+'">'+rec.gradeLabel+'</span></div></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="smallBtn" onclick="viewResultDetail(\''+rec.id+'\')">View Slip</button><button class="smallBtn save" onclick="shareResultWhatsApp(\''+rec.id+'\')">WhatsApp</button><button class="smallBtn danger" onclick="deleteResult(\''+rec.id+'\')">Delete</button></div></div>';
+      html+='</div>';
+    }
+    wrap.innerHTML=html;
+  });
+}
+
+function clearOnlineResultsBank(){
+  if(!confirm('Delete ALL online results? This will delete only online-tagged results.')) return;
+  if(!confirm('Confirm again')) return;
+  dbGetAll('results').then(function(items){
+    var toDelete=[];
+    for(var i=0;i<items.length;i++){ if(items[i].isOnline || items[i].onlineCode) toDelete.push(items[i].id); }
+    var promises=[];
+    for(var j=0;j<toDelete.length;j++){ promises.push(dbDelete('results', toDelete[j]).then((function(id){return function(){deleteFromFirebase('results', id);};})(toDelete[j]))); }
+    Promise.all(promises).then(function(){
+      renderResultsBank();
+      renderOnlineResultsBank();
+      alert('Deleted '+toDelete.length+' online results');
+    });
+  });
+}
+
+function exportOnlineResultsCSV(){
+  dbGetAll('results').then(function(items){
+    var onlineItems=[];
+    for(var i=0;i<items.length;i++){ if(items[i].isOnline || items[i].onlineCode) onlineItems.push(items[i]); }
+    if(onlineItems.length===0){ alert('No online results'); return; }
+    var csv='Name,ExamNumber,Title,Subject,Grade,OnlineCode,Score,Total,Percent,GradeLabel,Date\n';
+    for(var k=0;k<onlineItems.length;k++){
+      var r=onlineItems[k];
+      var row=[r.studentName, r.examNumber, r.title, r.subject, r.grade, r.onlineCode||'', r.score, r.total, r.percent, r.gradeLabel, new Date(r.createdAt).toLocaleString()];
+      csv+=row.map(function(v){ return '"'+String(v||'').replace(/"/g,'""')+'"'; }).join(',')+'\n';
+    }
+    downloadBlob('MTC_OnlineResults_'+new Date().toISOString().slice(0,10)+'.csv', csv, 'text/csv');
+  });
+}
+
+/* ===== ONLINE EXAM MODE - Separate Page via ?exam=CODE ===== */
+window._onlineExamMode=false;
+window._onlineExamCode='';
+
+function checkOnlineExamParam(){
+  try{
+    var params=new URLSearchParams(window.location.search);
+    var code=params.get('exam');
+    if(code){
+      console.log('Online exam code detected:', code);
+      // Ensure Firebase is init for online mode
+      if(!fbDb){
+        try{ initFirebase(); }catch(e){ console.log('Firebase init for online mode', e); }
+      }
+      enterOnlineExamMode(code.trim());
+    }
+  }catch(e){ console.error('checkOnlineExamParam error', e); }
+}
+
+function enterOnlineExamMode(code){
+  window._onlineExamMode=true;
+  window._onlineExamCode=code.toUpperCase();
+  console.log('Entering SEPARATE online exam mode for', window._onlineExamCode);
+  
+  // COMPLETELY SEPARATE PAGE - hide MTC Notes Creator App entirely
+  var html = '';
+  html += '<div id="onlineSeparatePage" style="min-height:100vh;background:#fffaf0;font-family:Segoe UI,Roboto,Arial,sans-serif">';
+  html += '<div style="background:linear-gradient(135deg,#0a2463,#1a3c8c);color:white;padding:16px 20px;display:flex;align-items:center;gap:16px;border-bottom:5px solid #c5a348;position:sticky;top:0;z-index:30">';
+  html += '<div id="online_logoArea" style="width:60px;height:60px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid #c5a348;flex-shrink:0;font-weight:900;color:#0a2463;font-size:20px">MTC</div>';
+  html += '<div style="flex:1"><div style="font-weight:900;font-size:16px;letter-spacing:0.5px" id="online_headerSchool">MOUNTAIN TUITION CENTRE (MTC)</div>';
+  html += '<div style="font-size:12px;color:#f0c674;font-weight:600" id="online_headerSub">Excellence in Education | Online Exam Portal</div>';
+  html += '<div style="font-size:11px;color:#dbeafe;margin-top:2px" id="online_headerTopic">Loading exam... | Tutor: Mr Tembo | 0972 619 148</div></div>';
+  html += '<div style="text-align:right"><div style="background:#c5a348;color:#0a2463;padding:4px 10px;border-radius:6px;font-weight:800;font-size:11px" id="online_codeBadge">CODE: ' + window._onlineExamCode + '</div><div style="font-size:10px;color:#dbeafe;margin-top:4px">ONLINE EXAM - SEPARATE PAGE</div></div></div>';
+  html += '<div style="display:flex;gap:10px;justify-content:center;background:#112d73;padding:10px;position:sticky;top:85px;z-index:20">';
+  html += '<button id="online_btnNotes" onclick="onlineShowTab(\'notes\')" style="background:#c5a348;border:none;padding:10px 22px;font-weight:800;color:#0a2463;border-radius:6px;cursor:pointer">Study Notes</button>';
+  html += '<button id="online_btnExam" onclick="onlineShowTab(\'examGate\')" style="background:#fbbf24;border:none;padding:10px 22px;font-weight:800;color:#0a2463;border-radius:6px;cursor:pointer">MCQ Exam (<span id="online_examCountLabel">0</span>)</button></div>';
+  html += '<div style="max-width:900px;margin:20px auto;padding:0 16px">';
+  html += '<div id="online_studyNotesView" style="background:white;border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);border-top:4px solid #c5a348;min-height:200px">';
+  html += '<div style="text-align:center;padding:40px"><div style="font-size:18px;color:#0a2463;font-weight:800">Loading Online Exam...</div><div style="font-size:13px;color:#64748b;margin-top:8px" id="online_loadingText">Code: ' + window._onlineExamCode + '<br>Connecting to cloud...<br>This is a separate online exam page - Not inside MTC Notes Creator App</div></div></div>';
+  html += '<div id="online_loginGate" style="display:none"><div style="max-width:440px;margin:30px auto;text-align:center;background:white;border-radius:16px;padding:28px;box-shadow:0 8px 24px rgba(0,0,0,0.08);border-top:5px solid #c5a348">';
+  html += '<h2 style="color:#0a2463;margin:0 0 6px">Student Login Required</h2>';
+  html += '<p style="font-size:13px;color:#64748b;margin:0 0 20px">Enter details to start the <span id="online_loginDuration">60</span>-minute online exam</p>';
+  html += '<input id="online_studentName" placeholder="Full Name" style="width:100%;padding:14px;margin:8px 0;border:2px solid #0a2463;border-radius:10px;font-size:15px;box-sizing:border-box">';
+  html += '<input id="online_examNumber" placeholder="Exam Number" style="width:100%;padding:14px;margin:8px 0;border:2px solid #0a2463;border-radius:10px;font-size:15px;box-sizing:border-box">';
+  html += '<button onclick="onlineStartExam()" style="background:#0a2463;color:white;border:none;padding:14px 32px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;margin-top:16px;width:100%">Start Online Exam</button>';
+  html += '<p style="font-size:11px;color:#64748b;margin-top:16px" id="online_loginFooter">School: MTC | Time: 60 mins | Code: ' + window._onlineExamCode + ' | Separate Page</p></div></div>';
+  html += '<div id="online_examContent" style="display:none">';
+  html += '<div style="position:sticky;top:138px;z-index:15;background:#0a2463;color:white;padding:12px 16px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px;border-bottom:3px solid #c5a348">';
+  html += '<div style="font-weight:700">Time Remaining: <span id="online_time" style="font-weight:900;font-size:18px;color:#fbbf24">00:00</span> | <span id="online_displayName"></span></div>';
+  html += '<div style="font-size:12px;background:#1e3a5f;padding:4px 10px;border-radius:6px" id="online_examProgress">0/0 answered</div></div>';
+  html += '<div id="online_mathKeyboard" style="margin-bottom:16px;background:#f1f5f9;border-radius:12px;padding:14px;border:2px solid #c5a348">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:800;color:#0a2463">Live Advanced Math Keyboard - For Learners</span><button onclick="onlineToggleMathKeyboard()" style="background:#0a2463;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer">Hide/Show</button></div>';
+  html += '<div id="online_mk_grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px">';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'x\')">x</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'y\')">y</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'=\')">=</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'+\')">+</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'-\')">-</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'x\')">x</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'/\')">/</button>';
+  html += '<button style="padding:10px;background:white;border:1px solid #cbd5e1;border-radius:8px;cursor:pointer;font-weight:700" onclick="onlineInsertMath(\'√\')">√</button>';
+  html += '</div>';
+  html += '<textarea id="online_roughWork" placeholder="Rough work - use math keyboard..." style="width:100%;margin-top:12px;padding:10px;border-radius:8px;border:1px solid #cbd5e1;min-height:70px;font-size:13px;box-sizing:border-box"></textarea></div>';
+  html += '<div id="online_examHeader" style="text-align:center;margin:16px 0"></div>';
+  html += '<form id="online_examForm"></form>';
+  html += '<div style="text-align:center;margin:24px"><button style="padding:14px 28px;background:#0a2463;color:white;border:none;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer" onclick="onlineSubmitExam(false)">Submit Online Exam</button></div></div>';
+  html += '<div id="online_resultSection" style="display:none"></div></div>';
+  html += '<div style="text-align:center;padding:20px;color:#94a3b8;font-size:11px;background:#0a1931;margin-top:40px"><div style="font-weight:800;color:#c5a348">MOUNTAIN TUITION CENTRE (MTC)</div><div>Online Exam Portal | Tutor: Mr Tembo | 0972 619 148 | WhatsApp: +260972619148</div><div style="margin-top:6px">This is a separate online exam page - Not inside MTC Notes Creator App</div></div></div>';
+
+  document.body.innerHTML = html;
+
+  if(typeof dbGetAll === 'function'){
+    dbGetAll('onlineExams').then(function(items){
+      var found=null;
+      for(var i=0;i<items.length;i++){ if(items[i].code.toUpperCase()===window._onlineExamCode){ found=items[i]; break; } }
+      if(found){
+        window._onlineExamPackage = found.packageData;
+        window._onlineExamPackage.onlineCode = found.code;
+        window._onlineExamMeta = found;
+        onlineRenderExam(found);
+      } else {
+        fetchOnlineExamFromFirebase(window._onlineExamCode);
+      }
+    }).catch(function(){ fetchOnlineExamFromFirebase(window._onlineExamCode); });
+  } else {
+    fetchOnlineExamFromFirebase(window._onlineExamCode);
+  }
+}
+
+function onlineShowTab(tab){
+  var notesView=document.getElementById('online_studyNotesView');
+  var loginGate=document.getElementById('online_loginGate');
+  var examContent=document.getElementById('online_examContent');
+  var resultSection=document.getElementById('online_resultSection');
+  var btnNotes=document.getElementById('online_btnNotes');
+  var btnExam=document.getElementById('online_btnExam');
+  if(!notesView) return;
+  if(tab==='notes'){
+    notesView.style.display='block';
+    if(loginGate) loginGate.style.display='none';
+    if(examContent) examContent.style.display='none';
+    if(resultSection) resultSection.style.display='none';
+    if(btnNotes) btnNotes.style.background='#c5a348';
+    if(btnExam) btnExam.style.background='#fbbf24';
+  } else if(tab==='examGate'){
+    if(window._onlineStudentData && window._onlineRemainingSeconds>0){
+      notesView.style.display='none';
+      if(loginGate) loginGate.style.display='none';
+      if(examContent) examContent.style.display='block';
+      if(resultSection) resultSection.style.display='none';
+    } else {
+      notesView.style.display='none';
+      if(loginGate) loginGate.style.display='block';
+      if(examContent) examContent.style.display='none';
+      if(resultSection) resultSection.style.display='none';
+    }
+  } else if(tab==='exam'){
+    notesView.style.display='none';
+    if(loginGate) loginGate.style.display='none';
+    if(examContent) examContent.style.display='block';
+    if(resultSection) resultSection.style.display='none';
+  } else if(tab==='result'){
+    notesView.style.display='none';
+    if(loginGate) loginGate.style.display='none';
+    if(examContent) examContent.style.display='none';
+    if(resultSection) resultSection.style.display='block';
+  }
+}
+
+function onlineRenderExam(rec){
+  var pkg=rec.packageData||rec;
+  var meta=pkg.meta||rec.meta||{};
+  var count=(pkg.mcqQuestions||[]).length;
+  var dur=meta.duration||rec.duration||60;
+  window._onlineExamPackage=pkg;
+  window._onlineExamPackage.onlineCode=rec.code;
+  var schoolEl=document.getElementById('online_headerSchool'); if(schoolEl) schoolEl.textContent=(meta.schoolName||'MOUNTAIN TUITION CENTRE (MTC)').toUpperCase();
+  var subEl=document.getElementById('online_headerSub'); if(subEl) subEl.textContent='Excellence in Education | '+(meta.subject||rec.subject||'')+' Grade '+(meta.grade||rec.grade||'')+' | Online Portal - Separate Page';
+  var topicEl=document.getElementById('online_headerTopic'); if(topicEl) topicEl.textContent='Topic: '+(meta.topic||rec.topic||'')+' | Tutor: '+(meta.tutorName||'Mr Tembo')+' | Code: '+rec.code+' | Separate Online Page';
+  var logoArea=document.getElementById('online_logoArea'); if(logoArea){ if(meta.logoBase64){ logoArea.innerHTML='<img src="'+meta.logoBase64+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'; } else { logoArea.textContent='MTC'; } }
+  var countLabel=document.getElementById('online_examCountLabel'); if(countLabel) countLabel.textContent=count;
+  var loginDur=document.getElementById('online_loginDuration'); if(loginDur) loginDur.textContent=dur;
+  var notesView=document.getElementById('online_studyNotesView');
+  if(notesView){
+    var notesHtml='';
+    if(pkg.richHTML && pkg.richHTML.trim().length>20){ notesHtml=pkg.richHTML; }
+    else if(pkg.notesSections && pkg.notesSections.length>0){
+      if(typeof buildNotesHTMLFromSections==='function'){ notesHtml=buildNotesHTMLFromSections(pkg.notesSections); }
+      else { var secs=pkg.notesSections; var h=''; for(var i=0;i<secs.length;i++){ h+='<h3 style="color:#0a2463">'+(secs[i].heading||'')+'</h3><p>'+(secs[i].content||'')+'</p>'; } notesHtml=h; }
+    } else { notesHtml='<p>No notes</p>'; }
+    var fullNotes='<h2 style="color:#0a2463;margin:0 0 14px;font-size:20px">EXAM NOTES: '+((meta.topic||rec.topic||'').toUpperCase())+' <span style="background:#0a2463;color:#fbbf24;padding:3px 10px;border-radius:6px;font-size:12px">'+rec.code+'</span></h2>'+notesHtml+'<p style="margin-top:20px;font-size:11px;color:#94a3b8"><em>Online Exam - Separate Page - Not inside MTC Notes Creator App</em></p>';
+    notesView.innerHTML=fullNotes;
+  }
+  onlineShowTab('notes');
+}
+
+function onlineToggleMathKeyboard(){
+  var grid=document.getElementById('online_mk_grid');
+  if(!grid) return;
+  grid.style.display = (grid.style.display==='none')?'grid':'none';
+}
+
+function onlineInsertMath(sym){
+  var rough=document.getElementById('online_roughWork');
+  if(rough){
+    var start=rough.selectionStart||0;
+    var end=rough.selectionEnd||0;
+    var text=rough.value||'';
+    rough.value=text.substring(0,start)+sym+text.substring(end);
+    rough.focus();
+    rough.selectionStart=rough.selectionEnd=start+sym.length;
+  }
+}
+
+function onlineStartExam(){
+  var nameEl=document.getElementById('online_studentName');
+  var numEl=document.getElementById('online_examNumber');
+  var name=nameEl?nameEl.value.trim():'';
+  var examNo=numEl?numEl.value.trim():'';
+  if(!name){ alert('Enter Full Name'); if(nameEl) nameEl.focus(); return; }
+  if(!examNo){ alert('Enter Exam Number'); if(numEl) numEl.focus(); return; }
+  if(!window._onlineExamPackage){ alert('No exam loaded'); return; }
+  window._onlineStudentData={name:name, examNumber:examNo, startedAt:Date.now()};
+  var displayName=document.getElementById('online_displayName'); if(displayName) displayName.textContent=name+' ('+examNo+')';
+  document.getElementById('online_loginGate').style.display='none';
+  document.getElementById('online_studyNotesView').style.display='none';
+  document.getElementById('online_examContent').style.display='block';
+  onlineBuildQuestions();
+  onlineStartTimer();
+}
+
+function onlineBuildQuestions(){
+  var pkg=window._onlineExamPackage; if(!pkg) return;
+  var mcqs=pkg.mcqQuestions||[];
+  var form=document.getElementById('online_examForm'); if(!form) return; form.innerHTML='';
+  for(var i=0;i<mcqs.length;i++){
+    var q=mcqs[i];
+    var qDiv=document.createElement('div'); qDiv.style.cssText='margin:18px 0;padding:14px;border-left:4px solid #0a2463;background:#f9fbff;border-radius:6px';
+    var optsHtml='';
+    for(var o=0;o<(q.options||[]).length;o++){
+      optsHtml+='<label style="display:block;margin:8px 0;padding:12px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;background:white"><input type="radio" name="online_q'+i+'" value="'+o+'" onchange="onlineUpdateProgress()" style="margin-right:6px"> <strong>'+String.fromCharCode(65+o)+'.</strong> '+q.options[o]+'</label>';
+    }
+    qDiv.innerHTML='<h4 style="margin:0 0 8px;color:#0a2463">Q'+(i+1)+'. '+(q.q||'')+'</h4><div>'+optsHtml+'</div>';
+    form.appendChild(qDiv);
+  }
+  onlineUpdateProgress();
+}
+
+function onlineUpdateProgress(){
+  var total=(window._onlineExamPackage && window._onlineExamPackage.mcqQuestions)?window._onlineExamPackage.mcqQuestions.length:0;
+  var answered=0;
+  for(var i=0;i<total;i++){ var sel=document.querySelector('input[name="online_q'+i+'"]:checked'); if(sel) answered++; }
+  var el=document.getElementById('online_examProgress'); if(el) el.textContent=answered+'/'+total+' answered';
+}
+
+function onlineStartTimer(){
+  var pkg=window._onlineExamPackage; if(!pkg) return;
+  var meta=pkg.meta||{};
+  var duration=parseInt(meta.duration)||60;
+  window._onlineRemainingSeconds=duration*60;
+  if(window._onlineTimerInterval) clearInterval(window._onlineTimerInterval);
+  function renderTime(){
+    var m=String(Math.floor(window._onlineRemainingSeconds/60)).padStart(2,'0');
+    var s=String(window._onlineRemainingSeconds%60).padStart(2,'0');
+    var el=document.getElementById('online_time'); if(el) el.textContent=m+':'+s;
+    if(window._onlineRemainingSeconds<=0){ clearInterval(window._onlineTimerInterval); onlineSubmitExam(true); }
+  }
+  renderTime();
+  window._onlineTimerInterval=setInterval(function(){ window._onlineRemainingSeconds--; renderTime(); },1000);
+}
+
+function onlineSubmitExam(isAuto){
+  if(!isAuto){ if(!confirm('Submit online exam now?')) return; }
+  if(window._onlineTimerInterval){ clearInterval(window._onlineTimerInterval); window._onlineTimerInterval=null; }
+  var pkg=window._onlineExamPackage; if(!pkg){ alert('No exam'); return; }
+  var mcqs=pkg.mcqQuestions||[]; var meta=pkg.meta||{};
+  var score=0; var results=[];
+  var form=document.getElementById('online_examForm');
+  for(var i=0;i<mcqs.length;i++){
+    var sel=form.querySelector('input[name="online_q'+i+'"]:checked');
+    var chosen=sel?parseInt(sel.value):-1;
+    var correctIdx=mcqs[i].answer;
+    var isCorrect=(chosen===correctIdx);
+    if(isCorrect) score++;
+    results.push({q:mcqs[i].q, options:mcqs[i].options, chosen:chosen, answer:correctIdx, correct:isCorrect});
+  }
+  var total=mcqs.length||1;
+  var percent=Math.round(score/total*100);
+  var gradeLabel=''; 
+  if(percent>=75) gradeLabel='Distinction';
+  else if(percent>=65) gradeLabel='Merit';
+  else if(percent>=50) gradeLabel='Credit';
+  else if(percent>=40) gradeLabel='Pass';
+  else gradeLabel='Fail';
+  var resultRecord={
+    id: 'res_'+Date.now()+'_'+Math.random().toString(36).substr(2,5),
+    studentName:window._onlineStudentData?window._onlineStudentData.name:'Unknown',
+    examNumber:window._onlineStudentData?window._onlineStudentData.examNumber:'N/A',
+    packageId:pkg.id||'online',
+    onlineCode:window._onlineExamCode||'',
+    title:meta.title||pkg.title||'Online Exam',
+    subject:meta.subject||'',
+    grade:meta.grade||'',
+    topic:meta.topic||'',
+    duration:meta.duration||60,
+    score:score,
+    total:total,
+    percent:percent,
+    gradeLabel:gradeLabel,
+    answers:results,
+    isOnline:true,
+    createdAt:Date.now(),
+    updatedAt:Date.now()
+  };
+  if(typeof fbDb!=='undefined' && fbDb){
+    try{
+      var root = (typeof FB_ROOT!=='undefined'?FB_ROOT:'mtcnotes');
+      fbDb.ref(root+'/results/'+resultRecord.id).set(resultRecord);
+    }catch(e){}
+  }
+  if(typeof dbPut==='function'){ try{ dbPut('results', resultRecord); }catch(e){} }
+  var resultDiv=document.getElementById('online_resultSection');
+  if(resultDiv) resultDiv.style.display='block';
+  var examContent=document.getElementById('online_examContent'); if(examContent) examContent.style.display='none';
+  var waText="MTC Online Results Slip%0AName: "+encodeURIComponent(resultRecord.studentName)+"%0AExam No: "+encodeURIComponent(resultRecord.examNumber)+"%0AOnline Code: "+encodeURIComponent(resultRecord.onlineCode)+"%0ASubject: "+encodeURIComponent(resultRecord.subject+" - "+resultRecord.topic)+"%0ATitle: "+encodeURIComponent(resultRecord.title)+"%0AScore: "+resultRecord.score+" / "+resultRecord.total+" ("+resultRecord.percent+"%)%0AGrade: "+resultRecord.gradeLabel+"%0ADate: "+encodeURIComponent(new Date().toLocaleDateString());
+  var waLink="https://wa.me/260972619148?text="+waText;
+  var html='';
+  html+='<div style="text-align:center;padding:14px;background:linear-gradient(135deg,#0a2463,#1e40af);color:white;border-radius:12px;margin-bottom:14px"><h2 style="margin:0;color:#f0c674">MTC Online Exam Result Slip</h2><div style="font-size:11px;color:#dbeafe;margin-top:4px">Separate Online Page | MOUNTAIN TUITION CENTRE (MTC)</div><div style="font-size:10px;color:#fbbf24">Code: '+(window._onlineExamCode||'')+' | Not inside App</div></div>';
+  html+='<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:12px">';
+  html+='<p><strong>Name:</strong> '+resultRecord.studentName+'</p>';
+  html+='<p><strong>Exam No:</strong> '+resultRecord.examNumber+'</p>';
+  html+='<p><strong>Online Code:</strong> '+resultRecord.onlineCode+'</p>';
+  html+='<p><strong>Exam:</strong> '+resultRecord.title+'</p>';
+  html+='<p><strong>Date:</strong> '+new Date().toLocaleDateString()+'</p></div>';
+  html+='<div style="text-align:center;margin:16px 0"><h3>Score: '+score+' / '+total+' ('+percent+'%)</h3><div style="margin-top:10px"><span style="padding:8px 18px;border-radius:20px;font-weight:800;background:#0a2463;color:#fbbf24">'+gradeLabel+'</span></div></div>';
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:18px 0">';
+  html+='<a href="'+waLink+'" target="_blank" style="background:#25D366;color:white;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:800">Send Results via WhatsApp to Mr Tembo (0972619148)</a>';
+  html+='</div>';
+  html+='<h3 style="color:#0a2463;margin-top:20px">Answer Review - Separate Page</h3>';
+  for(var i=0;i<results.length;i++){
+    var r=results[i];
+    var chosenText = r.chosen>=0 ? String.fromCharCode(65+r.chosen)+'. '+(r.options[r.chosen]||'') : 'No answer';
+    var correctText = String.fromCharCode(65+r.answer)+'. '+(r.options[r.answer]||'');
+    var borderColor = r.correct ? '#16a34a' : '#dc2626';
+    html+='<div style="border-left:4px solid '+borderColor+';margin:12px 0;padding:12px;background:#fff;border-radius:8px">';
+    html+='<h4>Q'+(i+1)+'. '+(r.q||'')+' '+(r.correct?'✔':'✖')+'</h4>';
+    html+='<p>Your: <strong style="color:'+(r.correct?'#16a34a':'#dc2626')+'">'+chosenText+'</strong></p>';
+    html+='<p>Correct: <strong style="color:#16a34a">'+correctText+'</strong></p></div>';
+  }
+  if(resultDiv){ resultDiv.innerHTML=html; resultDiv.scrollIntoView({behavior:'smooth'}); }
+}
+
+function fetchOnlineExamFromFirebase(code){
+  if(typeof fbDb==='undefined' || !fbDb){
+    setTimeout(function(){ fetchOnlineExamFromFirebase(code); }, 1000);
+    return;
+  }
+  try{
+    var root = (typeof FB_ROOT!=='undefined'?FB_ROOT:'mtcnotes');
+    fbDb.ref(root+'/onlineExams').orderByChild('code').equalTo(code).once('value').then(function(snapshot){
+      var val=snapshot.val();
+      if(!val){
+        fbDb.ref(root+'/onlineExams').once('value').then(function(snap2){
+          var all=snap2.val()||{};
+          var found=null;
+          for(var k in all){ if(all[k] && all[k].code && all[k].code.toUpperCase()===code.toUpperCase()){ found=all[k]; break; } }
+          if(found){ onlineRenderExam(found); }
+          else {
+            var notesView=document.getElementById('online_studyNotesView');
+            if(notesView) notesView.innerHTML='<div style="text-align:center;padding:40px;color:#dc2626"><h3>Online Exam Not Found</h3><p>Code: '+code+'</p><p>Please check link or contact Mr Tembo 0972619148</p><p><a href="'+ (typeof ONLINE_BASE_LINK!=='undefined'?ONLINE_BASE_LINK:'https://franktembo23-ai.github.io/mtc-notes-creator-/') +'">Go Home</a></p></div>';
+          }
+        });
+      } else {
+        var firstKey=Object.keys(val)[0];
+        var rec=val[firstKey];
+        onlineRenderExam(rec);
+      }
+    });
+  }catch(e){
+    console.error(e);
+  }
+}
+
+function handleFetchedOnlineExam(rec){
+  onlineRenderExam(rec);
 }
 
 
